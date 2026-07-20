@@ -1,0 +1,299 @@
+/* =============================================================================
+   BacPro Design System · "Cupertino" refresh
+   Fundație vizuală la nivel Apple: canvas luminos cu gradient subtil, umbre
+   stratificate difuze, tipografie SF cu ierarhie strânsă, Liquid Glass real
+   (blur + hairline + sheen), mișcare cu spring-uri discrete.
+   ========================================================================== */
+
+:root {
+  /* Canvas — alb-albastru luminos, nu gri mort */
+  --bg: #f4f6fb;
+  --bg-secondary: #edf1f8;
+  --surface: #ffffff;
+
+  /* Liquid Glass */
+  --glass: rgba(255, 255, 255, 0.68);
+  --glass-stroke: rgba(255, 255, 255, 0.75);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+
+  /* Linii & umpleri */
+  --separator: #e5eaf3;
+  --hairline: rgba(14, 27, 58, 0.06);
+  --fill: #eef2f8;
+  --fill-secondary: #dde5f1;
+
+  /* Text */
+  --label: #0b0f1c;
+  --label-2: #5a6577;
+  --label-3: #a4aec2;
+
+  /* Accente */
+  --blue: #007AFF;
+  --blue-deep: #0040DD;
+  --cyan: #32ADE6;
+  --indigo: #5856D6;
+  --teal: #30B0C0;
+  --green: #34C759;
+  --orange: #FF9500;
+  --red: #FF3B30;
+  --purple: #AF52DE;
+  --navy: #0e1b3a;
+
+  /* Spacing (8pt) */
+  --x1: 4px; --x2: 8px; --x3: 12px; --x4: 16px; --x5: 20px;
+  --x6: 24px; --x8: 32px; --x10: 40px; --page: 20px;
+
+  /* Radius — colțuri generoase, continue */
+  --r-sm: 14px; --r-md: 18px; --r-lg: 24px; --r-xl: 30px; --r-pill: 100px;
+
+  /* Umbre stratificate — difuze, niciodată dure */
+  --shadow-soft:
+    0 1px 2px rgba(14, 27, 58, 0.04),
+    0 8px 24px rgba(14, 27, 58, 0.06);
+  --shadow-floating:
+    0 2px 4px rgba(14, 27, 58, 0.05),
+    0 12px 28px rgba(14, 27, 58, 0.09),
+    0 28px 60px rgba(14, 27, 58, 0.08);
+  --shadow-hero:
+    0 4px 12px rgba(28, 62, 180, 0.18),
+    0 20px 50px rgba(28, 62, 180, 0.28);
+
+  /* Mișcare */
+  --dur-fast: 140ms;
+  --dur-base: 260ms;
+  --dur-slow: 480ms;
+  --ease: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --spring: cubic-bezier(0.34, 1.4, 0.44, 1);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+  --font-text: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+
+  --tab-clearance: 122px;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(88, 86, 214, 0.055), transparent 60%),
+    radial-gradient(900px 480px at -10% 0%, rgba(0, 122, 255, 0.06), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--label);
+  font-family: var(--font-text);
+  font-size: 16px;
+  letter-spacing: -0.2px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+  font-feature-settings: 'cv06';
+}
+
+button { font-family: inherit; }
+input, textarea { font-family: inherit; }
+::selection { background: rgba(0, 122, 255, 0.18); }
+
+/* ------------------------------------------------------------------ type -- */
+.t-large-title { font-family: var(--font-display); font-size: 33px; font-weight: 800; letter-spacing: -0.9px; line-height: 1.12; color: var(--label); }
+.t-title       { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.45px; color: var(--label); }
+.t-headline    { font-size: 17px; font-weight: 600; letter-spacing: -0.35px; color: var(--label); }
+.t-body        { font-size: 16px; font-weight: 400; letter-spacing: -0.2px; line-height: 1.32; color: var(--label); }
+.t-subhead     { font-size: 14px; font-weight: 400; letter-spacing: -0.1px; line-height: 1.38; color: var(--label-2); }
+.t-caption     { font-size: 12px; font-weight: 500; letter-spacing: 0.02px; color: var(--label-2); }
+.t-section     { font-size: 12px; font-weight: 600; letter-spacing: 0.7px; color: var(--label-3); text-transform: uppercase; }
+.t-stat        { font-family: var(--font-display); font-size: 26px; font-weight: 700; letter-spacing: -0.7px; color: var(--label); font-variant-numeric: tabular-nums; }
+
+/* -------------------------------------------------------------- surfaces -- */
+.floating-card {
+  width: 100%;
+  background: var(--surface);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-soft), inset 0 0 0 0.5px var(--hairline);
+  padding: var(--x5);
+}
+
+.glass-panel {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(32px) saturate(1.6);
+  backdrop-filter: blur(32px) saturate(1.6);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-soft);
+  background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 58%);
+}
+
+.pressable {
+  transition: transform var(--dur-base) var(--spring), opacity var(--dur-fast) ease-out, box-shadow var(--dur-base) var(--ease);
+  cursor: pointer;
+  user-select: none;
+}
+.pressable:active { transform: scale(0.965); opacity: 0.92; }
+
+/* --------------------------------------------------------------- inputs -- */
+.app-input {
+  display: flex;
+  align-items: center;
+  background: var(--fill);
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  transition: border-color var(--dur-base) var(--ease), background var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+
+  &:focus-within {
+    background: var(--surface);
+    border-color: rgba(0, 122, 255, 0.55);
+    box-shadow: 0 0 0 3.5px rgba(0, 122, 255, 0.12);
+  }
+
+  app-icon { margin-left: 14px; color: var(--label-3); flex: none; }
+
+  input, textarea {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 15px var(--x4);
+    font-size: 16px;
+    letter-spacing: -0.2px;
+    color: var(--label);
+    resize: none;
+  }
+  input::placeholder, textarea::placeholder { color: var(--label-3); }
+
+  &.multiline { align-items: flex-start; }
+}
+
+/* Slider — Cupertino */
+input[type='range'].app-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 30px;
+  background: transparent;
+  --track-color: var(--blue);
+  --track-h: 6px;
+  --pct: 50%;
+  margin: 0;
+
+  &::-webkit-slider-runnable-track {
+    height: var(--track-h);
+    border-radius: var(--r-pill);
+    background: linear-gradient(to right, var(--track-color) var(--pct), var(--fill-secondary) var(--pct));
+  }
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 27px;
+    height: 27px;
+    margin-top: calc((var(--track-h) - 27px) / 2);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.12), 0 3px 10px rgba(0, 0, 0, 0.18);
+    transition: transform var(--dur-fast) var(--spring);
+  }
+  &:active::-webkit-slider-thumb { transform: scale(1.08); }
+  &::-moz-range-track {
+    height: var(--track-h);
+    border-radius: var(--r-pill);
+    background: linear-gradient(to right, var(--track-color) var(--pct), var(--fill-secondary) var(--pct));
+  }
+  &::-moz-range-thumb {
+    width: 27px; height: 27px; border: none; border-radius: 50%;
+    background: #fff; box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.12), 0 3px 10px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* --------------------------------------------------------------- layout -- */
+.page-scroll {
+  min-height: 100dvh;
+  padding-top: calc(58px + env(safe-area-inset-top, 0px));
+  max-width: 660px;
+  margin: 0 auto;
+}
+
+/* pagini care merită mai mult spațiu pe desktop (dashboard) */
+@media (min-width: 900px) {
+  .page-scroll.wide-page { max-width: 920px; }
+}
+
+.page-pad { padding-left: var(--page); padding-right: var(--page); }
+
+.section-header { padding: 0 0 var(--x2) var(--x2); }
+
+a { color: var(--blue); text-decoration: none; }
+
+/* intrare în scenă — folosit pe carduri de dashboard */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise-in var(--dur-slow) var(--ease) both; }
+.rise-1 { animation-delay: 40ms; }
+.rise-2 { animation-delay: 90ms; }
+.rise-3 { animation-delay: 140ms; }
+.rise-4 { animation-delay: 190ms; }
+.rise-5 { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .rise-1, .rise-2, .rise-3, .rise-4, .rise-5 { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+/* aurora — fundal auth */
+.aurora {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+  }
+  &::before {
+    width: 460px; height: 460px;
+    left: -130px; top: -150px;
+    background: rgba(0, 122, 255, 0.1);
+  }
+  &::after {
+    width: 480px; height: 480px;
+    right: -150px; bottom: -190px;
+    background: rgba(50, 173, 230, 0.11);
+  }
+  > * { position: relative; z-index: 1; }
+}
+
+/* spinner */
+.spinner {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid var(--label-3);
+  border-top-color: transparent;
+  animation: spin 0.8s linear infinite;
+}
+.spinner.light { border-color: rgba(255, 255, 255, 0.9); border-top-color: transparent; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.center-fill {
+  min-height: 60dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* View Transitions — cross-fade + ridicare subtilă între rute */
+::view-transition-old(root) {
+  animation: vt-out 200ms var(--ease) both;
+}
+::view-transition-new(root) {
+  animation: vt-in 260ms var(--ease) both;
+}
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
