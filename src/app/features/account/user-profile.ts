@@ -12,7 +12,6 @@ import {
   DialogService,
   GlassHeaderComponent,
   IconComponent,
-  TintedIconComponent,
 } from '../../ui/ui';
 
 @Component({
@@ -23,7 +22,6 @@ import {
     CardRowComponent,
     GlassHeaderComponent,
     IconComponent,
-    TintedIconComponent,
   ],
   template: `
     <app-glass-header title="Profil" />
@@ -54,7 +52,7 @@ import {
             [showChevron]="false"
             (rowTap)="selectProfile(bacProfile.name)"
           >
-            <app-tinted-icon slot="leading" [icon]="bacProfile.icon" [color]="bacProfile.accentColor" />
+            <span slot="leading" class="picon"><app-icon [name]="bacProfile.icon" [size]="20" /></span>
             @if (profile().selectedProfile === bacProfile.name) {
               <app-icon slot="trailing" name="check-circle-fill" [size]="22" style="color: var(--blue)" />
             }
@@ -70,13 +68,23 @@ import {
       .avatar {
         width: 92px; height: 92px;
         border-radius: var(--r-xl);
-        background: rgba(0, 122, 255, 0.13);
-        color: var(--blue);
+        background: var(--fill);
+        color: var(--label-2);
         display: flex; align-items: center; justify-content: center;
       }
       .ecell { display: flex; align-items: center; padding: 14px var(--x4); cursor: pointer; gap: var(--x2); }
       .ecell:active { background: var(--fill); }
       .elabel { width: 90px; flex: none; }
+      .picon {
+        width: 40px; height: 40px;
+        border-radius: 13px;
+        background: var(--fill);
+        color: var(--label-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+      }
       .evalue { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     `,
   ],

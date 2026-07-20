@@ -16,8 +16,8 @@ import { FirestoreService } from '../../core/services/firestore.service';
 import {
   AppButtonComponent,
   GlassHeaderComponent,
+  IconComponent,
   PillBadgeComponent,
-  TintedIconComponent,
 } from '../../ui/ui';
 import { slug as slugify } from '../subjects/subject-routing';
 
@@ -34,7 +34,7 @@ interface RandomPick {
 @Component({
   selector: 'app-random',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppButtonComponent, GlassHeaderComponent, PillBadgeComponent, TintedIconComponent],
+  imports: [AppButtonComponent, GlassHeaderComponent, IconComponent, PillBadgeComponent],
   template: `
     <app-glass-header title="Subiect Random" [showBack]="false" />
     <div class="page-scroll">
@@ -42,7 +42,7 @@ interface RandomPick {
         <div class="floating-card pick-card">
           @if (pick(); as p) {
             <div class="prow">
-              <app-tinted-icon [icon]="p.subjectIcon" [color]="p.subjectColor" [size]="54" />
+              <span class="pick-icon"><app-icon [name]="p.subjectIcon" [size]="26" /></span>
               <div class="ptexts">
                 <div class="t-title">{{ p.subjectName }}</div>
                 <div class="t-subhead">{{ p.profileName }} · {{ p.year }}</div>
@@ -77,6 +77,16 @@ interface RandomPick {
       .content { padding-top: var(--x5); display: flex; flex-direction: column; gap: var(--x3); }
       .pick-card { border-radius: var(--r-xl); margin-bottom: var(--x2); }
       .prow { display: flex; align-items: center; gap: var(--x4); }
+      .pick-icon {
+        width: 54px; height: 54px;
+        border-radius: 17px;
+        background: var(--fill);
+        color: var(--label-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+      }
       .ptexts { min-width: 0; }
       .ptexts .t-subhead { margin-top: 3px; }
       .pill-row { margin-top: var(--x4); }

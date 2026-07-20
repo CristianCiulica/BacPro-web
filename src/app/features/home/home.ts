@@ -17,7 +17,7 @@ import { progressFromSessions } from '../../core/models/profile-data';
 import { AppSettingsService } from '../../core/services/app-settings.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FirestoreService } from '../../core/services/firestore.service';
-import { IconComponent, TintedIconComponent } from '../../ui/ui';
+import { IconComponent } from '../../ui/ui';
 import { ShellComponent } from '../shell/shell';
 import { slug as slugify } from '../subjects/subject-routing';
 import { CountdownCardComponent } from './countdown-card';
@@ -33,7 +33,7 @@ const MONTHS_RO = [
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CountdownCardComponent, IconComponent, TintedIconComponent],
+  imports: [CountdownCardComponent, IconComponent],
   template: `
     <header class="bar">
       <button class="round-btn pressable" (click)="shell?.openMenu()" aria-label="Meniu">
@@ -53,9 +53,6 @@ const MONTHS_RO = [
           <div class="card square">
             <div class="sq-head">
               <span class="sq-title">Subiecte</span>
-              <span class="sq-icon">
-                <app-icon name="doc-check" [size]="15" />
-              </span>
             </div>
             <div class="sq-spacer"></div>
             <div class="sq-value">{{ progress().solvedCount }}</div>
@@ -66,9 +63,6 @@ const MONTHS_RO = [
           <div class="card square">
             <div class="sq-head">
               <span class="sq-title">Obiectiv</span>
-              <span class="sq-icon">
-                <app-icon [name]="goalDone() ? 'check-seal-fill' : 'flame'" [size]="15" />
-              </span>
             </div>
             <div class="sq-spacer"></div>
             <div class="segments" role="img" [attr.aria-label]="weeklySolved() + ' din ' + weeklyGoal + ' subiecte'">
@@ -159,7 +153,7 @@ const MONTHS_RO = [
           <div class="subj-grid">
             @for (subject of selectedProfile().subjects; track subject.title) {
               <button class="tile pressable" (click)="openSubject(subject.title)">
-                <app-tinted-icon [icon]="subject.icon" [color]="subject.accentColor" [size]="42" />
+                <span class="tile-icon"><app-icon [name]="subject.icon" [size]="21" /></span>
                 <span class="tile-title">{{ subject.title }}</span>
                 <span class="tile-sub">2020 – 2025</span>
               </button>
@@ -227,15 +221,6 @@ const MONTHS_RO = [
       }
       .sq-head { display: flex; align-items: center; justify-content: space-between; }
       .sq-title { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; color: var(--label-2); }
-      .sq-icon {
-        width: 26px; height: 26px;
-        border-radius: 9px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--fill);
-        color: var(--label-2);
-      }
       .sq-spacer { flex: 1; min-height: var(--x4); }
       .sq-value {
         font-family: var(--font-display);
@@ -355,7 +340,16 @@ const MONTHS_RO = [
       @media (hover: hover) {
         .tile:hover { box-shadow: var(--shadow-floating), inset 0 0 0 0.5px var(--hairline); transform: translateY(-1px); }
       }
-      .tile app-tinted-icon { margin-bottom: var(--x3); }
+      .tile-icon {
+        width: 42px; height: 42px;
+        border-radius: 13px;
+        background: var(--fill);
+        color: var(--label-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--x3);
+      }
       .tile-title {
         font-size: 15px;
         font-weight: 600;
