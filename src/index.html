@@ -12,6 +12,15 @@
   <link rel="icon" type="image/png" href="assets/images/app_icon.png">
   <link rel="apple-touch-icon" href="assets/images/app_icon.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <script>
+    // aplică tema salvată înainte de încărcarea aplicației (fără flash)
+    try {
+      if (localStorage.getItem('bacpro_theme_v1') === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0A0C12');
+      }
+    } catch (e) {}
+  </script>
 </head>
 <body>
   <app-root></app-root>

@@ -297,3 +297,58 @@ a { color: var(--blue); text-decoration: none; }
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: none; }
 }
+
+/* =============================================================================
+   Dark mode — clasa .dark pe <html>. Paleta Apple pentru dark (iOS):
+   canvas aproape negru cu tentă albastră, suprafețe ridicate, accente
+   luminoase (#0A84FF, #30D158...), umbre negre difuze.
+   ========================================================================== */
+:root.dark {
+  --bg: #0a0c12;
+  --bg-secondary: #0f1219;
+  --surface: #161a24;
+
+  --glass: rgba(22, 26, 36, 0.62);
+  --glass-stroke: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+
+  --separator: #252b3a;
+  --hairline: rgba(255, 255, 255, 0.06);
+  --fill: #1d2230;
+  --fill-secondary: #2a3042;
+
+  --label: #f5f6fa;
+  --label-2: #9aa3b5;
+  --label-3: #5d6679;
+
+  /* Accente Apple — variantele pentru dark mode */
+  --blue: #0a84ff;
+  --blue-deep: #409cff;
+  --cyan: #64d2ff;
+  --indigo: #5e5ce6;
+  --teal: #40c8e0;
+  --green: #30d158;
+  --orange: #ff9f0a;
+  --red: #ff453a;
+  --purple: #bf5af2;
+  --navy: #eef2ff;
+
+  --shadow-soft:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-floating:
+    0 2px 4px rgba(0, 0, 0, 0.35),
+    0 12px 28px rgba(0, 0, 0, 0.45),
+    0 28px 60px rgba(0, 0, 0, 0.4);
+}
+
+.dark body {
+  background:
+    radial-gradient(1100px 500px at 85% -10%, rgba(94, 92, 230, 0.1), transparent 60%),
+    radial-gradient(900px 480px at -10% 0%, rgba(10, 132, 255, 0.09), transparent 55%),
+    var(--bg);
+  background-attachment: fixed;
+}
+.dark ::selection { background: rgba(10, 132, 255, 0.35); }
+
+/* sliderul și switch-ul păstrează thumb-ul alb (ca în iOS dark) */

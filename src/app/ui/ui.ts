@@ -127,7 +127,6 @@ export type AppButtonStyle = 'primary' | 'secondary' | 'glass' | 'destructive' |
     <button
       class="btn pressable"
       [class.expanded]="expanded()"
-      [class.lit]="btnStyle() === 'primary'"
       [class.glassy]="btnStyle() === 'glass'"
       [style.height.px]="height()"
       [style.background]="bg()"
@@ -204,7 +203,8 @@ export class AppButtonComponent {
 
   bg = computed(() => {
     switch (this.btnStyle()) {
-      case 'primary': return accentGradient(this.accent());
+      // umplere solidă, ca butoanele filled din iOS — fără gradient
+      case 'primary': return this.accent();
       case 'secondary': return tint(this.accent());
       case 'glass': return 'var(--glass)';
       case 'destructive': return tint('#FF3B30');
@@ -222,12 +222,8 @@ export class AppButtonComponent {
   });
   border = computed(() => (this.btnStyle() === 'glass' ? '1px solid var(--glass-stroke)' : 'none'));
   shadow = computed(() => {
-    if (!this.enabled()) return 'none';
-    // umbră de accent discretă — abia perceptibilă, fără glow
-    if (this.btnStyle() === 'primary') {
-      return `0 1px 2px ${hexToRgba(this.accent(), 0.12)}, 0 4px 12px ${hexToRgba(this.accent(), 0.14)}`;
-    }
-    if (this.btnStyle() === 'glass') return 'var(--shadow-soft)';
+    // butoane plate, ca în iOS — fără glow, fără umbre de accent
+    if (this.enabled() && this.btnStyle() === 'glass') return 'var(--shadow-soft)';
     return 'none';
   });
 
@@ -544,6 +540,15 @@ export class CardRowComponent {
         margin-left: var(--x1);
       }
       .trailing { margin-left: auto; display: flex; align-items: center; }
+
+      :host-context(.dark) .bar {
+        background: rgba(10, 12, 18, 0.6);
+        border-bottom: 0.5px solid rgba(255, 255, 255, 0.07);
+      }
+      :host-context(.dark) .round-btn {
+        background: rgba(30, 34, 46, 0.85);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
     `,
   ],
 })
@@ -827,6 +832,9 @@ export class DialogService {
       .action:active { background: var(--fill); }
       .action.destructive { color: var(--red); }
       .action.cancel { font-weight: 600; }
+
+      :host-context(.dark) .box { background: rgba(28, 32, 42, 0.92); }
+      :host-context(.dark) .action:active { background: rgba(255, 255, 255, 0.07); }
     `,
   ],
 })

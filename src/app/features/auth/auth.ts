@@ -143,7 +143,7 @@ const AUTH_STYLES = `
         object-fit: cover;
         border-radius: var(--r-xl);
         border: 2px solid #fff;
-        box-shadow: var(--shadow-floating), 0 18px 50px rgba(0, 122, 255, 0.14);
+        box-shadow: var(--shadow-floating);
       }
       .brand {
         margin: var(--x6) 0 0;
@@ -151,10 +151,7 @@ const AUTH_STYLES = `
         font-size: 46px;
         font-weight: 800;
         letter-spacing: -1.6px;
-        background: linear-gradient(135deg, #0b0f1c 30%, #007AFF);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: var(--label);
       }
       .tagline { margin: var(--x2) 0 0; font-size: 16px; line-height: 1.4; }
       .cta { display: flex; flex-direction: column; gap: var(--x3); padding-bottom: var(--x6); }

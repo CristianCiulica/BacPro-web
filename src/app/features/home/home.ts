@@ -201,6 +201,15 @@ const MONTHS_RO = [
       }
       .round-spacer { width: 42px; flex: none; }
 
+      :host-context(.dark) .bar {
+        background: rgba(10, 12, 18, 0.6);
+        border-bottom: 0.5px solid rgba(255, 255, 255, 0.07);
+      }
+      :host-context(.dark) .round-btn {
+        background: rgba(30, 34, 46, 0.85);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
+
       .overview { padding-top: var(--x5); }
       .date { letter-spacing: 1px; }
       .htitle { margin: 4px 0 0; }

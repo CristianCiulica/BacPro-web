@@ -194,6 +194,13 @@ interface DrawerEntry {
       .dicon.danger, .dlabel.danger { color: var(--red); }
       .dlabel { flex: 1; font-weight: 500; }
 
+      :host-context(.dark) .drawer {
+        background: rgba(16, 19, 27, 0.92);
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      :host-context(.dark) .ditem:active { background: rgba(255, 255, 255, 0.06); }
+      :host-context(.dark) .scrim { background: rgba(0, 0, 0, 0.55); }
+
       .tabbar-wrap {
         position: fixed;
         left: var(--x6); right: var(--x6);
@@ -234,13 +241,13 @@ interface DrawerEntry {
         background: transparent;
         color: var(--label-2);
         cursor: pointer;
+        /* comutare crocantă, fără bounce — ca tab bar-ul din iOS */
         transition:
-          background var(--dur-base) var(--spring),
-          color var(--dur-base) var(--ease),
-          transform var(--dur-base) var(--spring),
-          box-shadow var(--dur-base) var(--ease);
+          background 160ms ease-out,
+          color 160ms ease-out,
+          opacity 120ms ease-out;
       }
-      .tab:active { transform: scale(0.94); }
+      .tab:active { opacity: 0.55; }
       .tab.active {
         /* pastilă de sticlă discretă peste sticla barei */
         background: rgba(255, 255, 255, 0.38);
@@ -252,6 +259,18 @@ interface DrawerEntry {
       }
       .tlabel { font-size: 10.5px; font-weight: 500; letter-spacing: 0.1px; }
       .tab.active .tlabel { font-weight: 700; }
+
+      :host-context(.dark) .tabbar {
+        background: linear-gradient(180deg, rgba(30, 34, 46, 0.4), rgba(30, 34, 46, 0.2));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow:
+          0 12px 32px rgba(0, 0, 0, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      }
+      :host-context(.dark) .tab.active {
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+      }
     `,
   ],
 })

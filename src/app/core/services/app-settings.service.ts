@@ -6,13 +6,30 @@
  */
 import { Injectable, signal } from '@angular/core';
 
+const THEME_KEY = 'bacpro_theme_v1';
+
 @Injectable({ providedIn: 'root' })
 export class AppSettingsService {
-  readonly darkMode = signal(false);
+  readonly darkMode = signal(localStorage.getItem(THEME_KEY) === 'dark');
   readonly haptics = signal(true);
 
+  constructor() {
+    this.applyTheme(this.darkMode());
+  }
+
+  /** Tema e per-dispozitiv (ca Appearance în iOS); persistată local și
+   *  oglindită în profilul Firestore de către ecranul de Setări. */
   setDarkMode(value: boolean): void {
     this.darkMode.set(value);
+    localStorage.setItem(THEME_KEY, value ? 'dark' : 'light');
+    this.applyTheme(value);
+  }
+
+  private applyTheme(dark: boolean): void {
+    document.documentElement.classList.toggle('dark', dark);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', dark ? '#0A0C12' : '#F4F6FB');
   }
 
   setHaptics(value: boolean): void {

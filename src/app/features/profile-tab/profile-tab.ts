@@ -7,13 +7,13 @@ import {
   CardGroupComponent,
   CardRowComponent,
   GlassHeaderComponent,
-  TintedIconComponent,
+  IconComponent,
 } from '../../ui/ui';
 
 @Component({
   selector: 'app-profile-tab',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardGroupComponent, CardRowComponent, GlassHeaderComponent, TintedIconComponent],
+  imports: [CardGroupComponent, CardRowComponent, GlassHeaderComponent, IconComponent],
   template: `
     <app-glass-header title="Profil" [showBack]="false" />
     <div class="page-scroll">
@@ -29,16 +29,16 @@ import {
 
       <app-card-group header="Cont">
         <app-card-row title="Profil utilizator" (rowTap)="go('/user-profile')">
-          <app-tinted-icon slot="leading" icon="person-circle" color="#007AFF" />
+          <span slot="leading" class="gicon"><app-icon name="person-circle" [size]="20" /></span>
         </app-card-row>
         <app-card-row title="Setări" (rowTap)="go('/settings')">
-          <app-tinted-icon slot="leading" icon="gear" color="#5856D6" />
+          <span slot="leading" class="gicon"><app-icon name="gear" [size]="20" /></span>
         </app-card-row>
         <app-card-row title="Despre BacPro" (rowTap)="go('/about')">
-          <app-tinted-icon slot="leading" icon="info-circle" color="#30B0C0" />
+          <span slot="leading" class="gicon"><app-icon name="info-circle" [size]="20" /></span>
         </app-card-row>
         <app-card-row title="Deconectează-te" (rowTap)="signOut()">
-          <app-tinted-icon slot="leading" icon="logout" color="#FF3B30" />
+          <span slot="leading" class="gicon danger"><app-icon name="logout" [size]="20" /></span>
         </app-card-row>
       </app-card-group>
 
@@ -52,6 +52,17 @@ import {
       .texts { min-width: 0; }
       .name { font-size: 18px; }
       .email { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .gicon {
+        width: 40px; height: 40px;
+        border-radius: 13px;
+        background: var(--fill);
+        color: var(--label-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+      }
+      .gicon.danger { color: var(--red); }
     `,
   ],
 })

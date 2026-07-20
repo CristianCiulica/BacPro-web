@@ -10,7 +10,7 @@ import {
   CardGroupComponent,
   CardRowComponent,
   GlassHeaderComponent,
-  TintedIconComponent,
+  IconComponent,
 } from '../../ui/ui';
 
 interface PolicySection {
@@ -67,7 +67,7 @@ export const PRIVACY_SECTIONS: PolicySection[] = [
 @Component({
   selector: 'app-about',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardGroupComponent, CardRowComponent, GlassHeaderComponent, TintedIconComponent],
+  imports: [CardGroupComponent, CardRowComponent, GlassHeaderComponent, IconComponent],
   template: `
     <app-glass-header title="Despre" />
     <div class="page-scroll">
@@ -79,13 +79,13 @@ export const PRIVACY_SECTIONS: PolicySection[] = [
 
       <app-card-group header="Aplicație">
         <app-card-row title="Termeni și condiții" (rowTap)="go('/terms')">
-          <app-tinted-icon slot="leading" icon="doc-text" color="#007AFF" />
+          <span slot="leading" class="gicon"><app-icon name="doc-text" [size]="20" /></span>
         </app-card-row>
         <app-card-row title="Politica de confidențialitate" (rowTap)="go('/privacy')">
-          <app-tinted-icon slot="leading" icon="lock-shield" color="#34C759" />
+          <span slot="leading" class="gicon"><app-icon name="lock-shield" [size]="20" /></span>
         </app-card-row>
         <app-card-row title="Evaluează pe App Store" (rowTap)="noop()">
-          <app-tinted-icon slot="leading" icon="star" color="#FF9500" />
+          <span slot="leading" class="gicon"><app-icon name="star" [size]="20" /></span>
         </app-card-row>
       </app-card-group>
 
@@ -118,6 +118,16 @@ export const PRIVACY_SECTIONS: PolicySection[] = [
         color: var(--label);
       }
       .footer { margin-top: var(--x10); text-align: center; }
+      .gicon {
+        width: 40px; height: 40px;
+        border-radius: 13px;
+        background: var(--fill);
+        color: var(--label-2);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+      }
     `,
   ],
 })
