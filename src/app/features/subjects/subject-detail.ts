@@ -1,8 +1,15 @@
 /**
- * Ecranul de subiect — redesign modern în stil Apple (iOS / macOS):
- * Header curat cu pill-uri, card dedicat pentru documentele oficiale (Subiect & Barem)
- * cu acțiuni directe de previzualizare fără să comuți tab-uri, timer de examen (3h)
- * cu bară fină de progres, autoevaluare cu slider liquid-glass și note personale.
+ * Subject Detail — iOS native feel.
+ *
+ * Layout modelled after Apple Health / Fitness / Settings:
+ * - systemGroupedBackground canvas
+ * - Grouped inset cards (secondarySystemGroupedBackground)
+ * - Apple typography hierarchy (Large Title → Headline → Body → Caption)
+ * - Generous 8pt-grid spacing
+ * - Minimal shadows — rely on contrast & spacing
+ * - Timer as hero element (Fitness-style large digits)
+ * - iOS-native slider proportions
+ * - Plain / tinted text buttons instead of Material filled buttons
  */
 import {
   ChangeDetectionStrategy,
@@ -22,211 +29,191 @@ import { AuthService } from '../../core/services/auth.service';
 import { FirestoreService } from '../../core/services/firestore.service';
 import { LocalExamPdfService } from '../../core/services/local-exam-pdf.service';
 import {
-  AppButtonComponent,
-  CardGroupComponent,
   DialogService,
   GlassHeaderComponent,
   IconComponent,
-  PillBadgeComponent,
 } from '../../ui/ui';
 import { ExamFullscreenResult, PdfFullscreenComponent } from './pdf-fullscreen';
 import { findProfile, findSession, findSubject } from './subject-routing';
 
-const BAC_DURATION = 10800; // 3 ore
+const BAC_DURATION = 10800;
 
 @Component({
   selector: 'app-subject-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule,
-    AppButtonComponent,
-    CardGroupComponent,
     GlassHeaderComponent,
     IconComponent,
-    PillBadgeComponent,
     PdfFullscreenComponent,
   ],
   template: `
     <app-glass-header title="" [large]="false" />
-    <div class="page-scroll">
-      <!-- Header Titlu stil Apple -->
-      <div class="page-pad title-block">
-        <div class="pill-tags">
-          <app-pill-badge [label]="'Anul ' + year()" />
-          <app-pill-badge [label]="sessionName()" />
-        </div>
-        <h1 class="stitle">{{ subjectName() }}</h1>
+    <div class="page-scroll page-pad">
+
+      <!-- ─── Large Title ─── -->
+      <div class="hero">
+        <div class="meta">{{ year() }} · {{ sessionName() }}</div>
+        <h1 class="large-title">{{ subjectName() }}</h1>
       </div>
 
-      <!-- Documente Oficiale: Carduri de acțiune directă Apple -->
-      <div class="page-pad">
-        <div class="t-section section-header">Documente oficiale</div>
-        <div class="floating-card docs-card">
+      <!-- ═══ TIMER ═══ -->
+      <section class="group">
+        <div class="group-header">MOD EXAMEN</div>
+        <div class="card">
+          <div class="timer-cell">
+            <div class="timer-row">
+              <div class="timer-digits">{{ formattedTime() }}</div>
+              @if (examStarted()) {
+                <span class="live-pill">Activ</span>
+              }
+            </div>
+            <div class="thin-track">
+              <div class="thin-fill" [style.width.%]="timerProgress() * 100"></div>
+            </div>
+            <div class="timer-meta">
+              <span>{{ consumedLabel() }}% parcurs</span>
+              <span>{{ minutesLeft() }} min</span>
+            </div>
+          </div>
+
+          <div class="separator inset"></div>
+
+          <div class="action-cell">
+            @if (!examStarted()) {
+              <button class="ios-btn filled" (click)="startTimer()">
+                <app-icon name="play-fill" [size]="16" />
+                <span>Start examen</span>
+              </button>
+            } @else {
+              <div class="btn-pair">
+                <button class="ios-btn filled flex-1" (click)="startTimer()">
+                  <app-icon name="play-fill" [size]="16" />
+                  <span>Continuă</span>
+                </button>
+                <button class="ios-btn tinted-destructive flex-1" (click)="confirmStopExam()">
+                  Oprește
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ DOCUMENTE ═══ -->
+      <section class="group">
+        <div class="group-header">DOCUMENTE OFICIALE</div>
+        <div class="card">
           @if (pdfLoading()) {
-            <div class="docs-loading">
+            <div class="center-cell">
               <span class="spinner"></span>
-              <span>Se caută documentele...</span>
             </div>
           } @else if (pdfError()) {
-            <div class="docs-empty">
-              <app-icon name="info-circle" [size]="20" />
-              <span>{{ pdfError() }}</span>
+            <div class="center-cell muted">
+              {{ pdfError() }}
             </div>
           } @else {
-            <div class="doc-rows">
-              <!-- Subiect -->
-              <div class="doc-item">
-                <div class="doc-icon-box">
-                  <app-icon name="doc-text" [size]="22" />
-                </div>
-                <div class="doc-info">
-                  <div class="doc-name">Subiect Examen</div>
-                  <div class="doc-meta">Varianta oficială PDF</div>
-                </div>
-                <div class="doc-actions">
-                  @if (subjectPdfPath()) {
-                    <button class="apple-pill-btn pressable" (click)="openSubjectPdf()">
-                      <app-icon name="eye" [size]="15" />
-                      <span>Vezi PDF</span>
-                    </button>
-                  }
-                </div>
+            <!-- Subiect -->
+            <button
+              class="row"
+              [class.disabled]="!subjectPdfPath()"
+              (click)="openSubjectPdf()"
+            >
+              <div class="row-icon">
+                <app-icon name="doc-text" [size]="20" />
               </div>
-
-              <div class="doc-divider"></div>
-
-              <!-- Barem -->
-              <div class="doc-item">
-                <div class="doc-icon-box">
-                  <app-icon name="doc-check" [size]="22" />
-                </div>
-                <div class="doc-info">
-                  <div class="doc-name">Barem de corectare</div>
-                  <div class="doc-meta">Schema de notare PDF</div>
-                </div>
-                <div class="doc-actions">
-                  @if (baremPdfPath()) {
-                    <button class="apple-pill-btn pressable" (click)="openBaremPdf()">
-                      <app-icon name="eye" [size]="15" />
-                      <span>Vezi Barem</span>
-                    </button>
-                  } @else {
-                    <span class="no-doc">Indisponibil</span>
-                  }
-                </div>
+              <div class="row-body">
+                <span class="row-title">Subiect</span>
+                <span class="row-subtitle">Varianta oficială</span>
               </div>
-            </div>
+              <app-icon name="chevron-right" [size]="14" />
+            </button>
+
+            <div class="separator inset"></div>
+
+            <!-- Barem -->
+            <button
+              class="row"
+              [class.disabled]="!baremPdfPath()"
+              (click)="openBaremPdf()"
+            >
+              <div class="row-icon">
+                <app-icon name="doc-check" [size]="20" />
+              </div>
+              <div class="row-body">
+                <span class="row-title">Barem de corectare</span>
+                <span class="row-subtitle">Schema de notare</span>
+              </div>
+              @if (baremPdfPath()) {
+                <app-icon name="chevron-right" [size]="14" />
+              } @else {
+                <span class="row-badge">Indisponibil</span>
+              }
+            </button>
           }
         </div>
-      </div>
+      </section>
 
-      <!-- Timer Examen 3 Ore -->
-      <div class="page-pad" style="margin-top: var(--x5)">
-        <div class="t-section section-header">Mod Examen (3 Ore)</div>
-        <div class="floating-card timer-card">
-          <div class="timer-top">
-            <div>
-              <div class="t-caption">Timp examen</div>
-              <div class="big-time">{{ formattedTime() }}</div>
+      <!-- ═══ NOTĂ ESTIMATĂ ═══ -->
+      <section class="group">
+        <div class="group-header">AUTOEVALUARE</div>
+        <div class="card">
+          <div class="grade-cell">
+            <div class="grade-top">
+              <span class="grade-label">Nota obținută</span>
+              <span class="grade-value">{{ estimatedGrade().toFixed(1) }}</span>
             </div>
-            @if (examStarted()) {
-              <span class="status-chip">În desfășurare</span>
-            }
-          </div>
-
-          <div class="thinbar">
-            <div class="thinbar-fill" [style.width.%]="timerProgress() * 100"></div>
-          </div>
-          <div class="tmeta">
-            <span>{{ consumedLabel() }}% parcurs</span>
-            <span>{{ minutesLeft() }} min rămase</span>
-          </div>
-
-          <div class="tactions">
-            @if (!examStarted()) {
-              <app-button
-                label="Start Examen (3h)"
-                icon="play-fill"
-                [height]="50"
-                (pressed)="startTimer()"
-              />
-            } @else {
-              <app-button
-                label="Continuă"
-                icon="play-fill"
-                [height]="50"
-                style="flex: 1"
-                (pressed)="startTimer()"
-              />
-              <app-button
-                label="Oprește"
-                btnStyle="subtle"
-                [height]="50"
-                style="flex: 1"
-                (pressed)="confirmStopExam()"
-              />
-            }
+            <input
+              class="ios-slider"
+              type="range"
+              min="1"
+              max="10"
+              step="0.5"
+              [ngModel]="estimatedGrade()"
+              (ngModelChange)="setGrade($event)"
+              [style.--pct.%]="((estimatedGrade() - 1) / 9) * 100"
+            />
+            <div class="scale-row">
+              <span>1</span>
+              <span>5</span>
+              <span>10</span>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Autoevaluare -->
-      <div class="page-pad" style="margin-top: var(--x5)">
-        <div class="t-section section-header">Nota estimată</div>
-        <div class="glass-panel grade-glass">
-          <div class="grade-row">
-            <span class="t-body">Nota obținută</span>
-            <span class="grade-badge">{{ estimatedGrade().toFixed(1) }}</span>
-          </div>
-          <input
-            class="app-slider grade-slider"
-            type="range"
-            min="1"
-            max="10"
-            step="0.5"
-            [ngModel]="estimatedGrade()"
-            (ngModelChange)="setGrade($event)"
-            [style.--pct.%]="((estimatedGrade() - 1) / 9) * 100"
-            [style.--track-color]="'rgba(142, 152, 172, 0.7)'"
-          />
-          <div class="scale">
-            <span class="t-caption">1.0</span>
-            <span class="t-caption">5.0</span>
-            <span class="t-caption">10.0</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Note personale -->
-      <app-card-group header="Note personale">
-        <div class="notes-cell">
-          <div class="app-input multiline">
+      <!-- ═══ NOTE PERSONALE ═══ -->
+      <section class="group">
+        <div class="group-header">NOTE PERSONALE</div>
+        <div class="card">
+          <div class="notes-cell">
             <textarea
+              class="notes-area"
               rows="4"
-              placeholder="Scrie observații, formule importante, greșeli făcute..."
+              placeholder="Observații, formule, greșeli frecvente..."
               [(ngModel)]="notes"
               (focus)="editingNotes.set(true)"
             ></textarea>
+            @if (editingNotes()) {
+              <button class="ios-btn-text save-btn" (click)="editingNotes.set(false)">
+                Salvează
+              </button>
+            }
           </div>
-          @if (editingNotes()) {
-            <div class="notes-save">
-              <app-button
-                label="Salvează notele"
-                btnStyle="secondary"
-                [expanded]="false"
-                [height]="40"
-                class="inline-host"
-                (pressed)="editingNotes.set(false)"
-              />
-            </div>
-          }
         </div>
-      </app-card-group>
+      </section>
 
-      <div class="page-pad finish">
-        <app-button label="Marchează ca rezolvat" icon="check" [height]="54" (pressed)="markSolved()" />
-      </div>
-      <div style="height: var(--x6)"></div>
+      <!-- ═══ FINALIZARE ═══ -->
+      <section class="group">
+        <div class="card">
+          <button class="row-action" (click)="markSolved()">
+            <app-icon name="check" [size]="18" />
+            <span>Marchează ca rezolvat</span>
+          </button>
+        </div>
+      </section>
+
+      <div style="height: var(--tab-clearance)"></div>
     </div>
 
     @if (fullscreen(); as fs) {
@@ -242,129 +229,305 @@ const BAC_DURATION = 10800; // 3 ore
   `,
   styles: [
     `
-      /* Header titlu Apple */
-      .title-block { padding-top: var(--x2); padding-bottom: var(--x4); }
-      .pill-tags { display: flex; gap: var(--x2); margin-bottom: var(--x2); }
-      .stitle {
+      /* ── Page ── */
+      :host { display: block; }
+
+      .hero { padding: 8px 0 24px; }
+      .meta {
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--label-2);
+        letter-spacing: -0.1px;
+        margin-bottom: 4px;
+      }
+      .large-title {
         margin: 0;
         font-family: var(--font-display);
-        font-size: clamp(28px, 8vw, 36px);
-        font-weight: 800;
-        letter-spacing: -0.8px;
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.7px;
         line-height: 1.1;
         color: var(--label);
       }
 
-      /* Card Documente Oficiale Apple */
-      .docs-card { padding: 0; overflow: hidden; }
-      .docs-loading {
-        display: flex; align-items: center; justify-content: center; gap: var(--x3);
-        padding: var(--x6); color: var(--label-2); font-size: 14px;
+      /* ── iOS Grouped Section ── */
+      .group { margin-bottom: 32px; }
+      .group-header {
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: -0.08px;
+        color: var(--label-2);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        padding-left: 4px;
       }
-      .docs-empty {
-        display: flex; align-items: center; justify-content: center; gap: var(--x2);
-        padding: var(--x6); color: var(--label-2); font-size: 14px; text-align: center;
+      .card {
+        background: var(--surface);
+        border-radius: 16px;
+        overflow: hidden;
       }
-      .doc-rows { display: flex; flex-direction: column; }
-      .doc-item {
-        display: flex; align-items: center; gap: var(--x3);
-        padding: var(--x4);
-      }
-      .doc-icon-box {
-        width: 42px; height: 42px; border-radius: 12px;
-        background: var(--fill); color: var(--label);
-        display: flex; align-items: center; justify-content: center;
-        flex: none;
-      }
-      .doc-info { flex: 1; min-width: 0; }
-      .doc-name { font-weight: 600; font-size: 15px; letter-spacing: -0.2px; color: var(--label); }
-      .doc-meta { font-size: 12.5px; color: var(--label-2); margin-top: 2px; }
-      .doc-actions { display: flex; align-items: center; gap: var(--x2); flex: none; }
-      .doc-divider { height: 0.5px; background: var(--separator); margin: 0 var(--x4); }
-      .no-doc { font-size: 12.5px; color: var(--label-3); font-weight: 500; }
 
-      .apple-pill-btn {
-        display: inline-flex; align-items: center; gap: 6px;
-        border: none; padding: 8px 14px; border-radius: var(--r-pill);
-        font-size: 13px; font-weight: 600; cursor: pointer;
-        background: var(--fill); color: var(--blue);
-        transition: background 160ms var(--ease), opacity 140ms ease-out;
-      }
-      .apple-pill-btn:hover { background: var(--fill-secondary); }
+      .separator { height: 0.33px; background: var(--separator); }
+      .separator.inset { margin-left: 16px; }
 
-      /* Timer Examen */
-      .timer-card { text-align: left; }
-      .timer-top { display: flex; align-items: flex-start; justify-content: space-between; }
-      .status-chip {
-        font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-        padding: 4px 10px; border-radius: var(--r-pill); background: rgba(52, 199, 89, 0.14); color: var(--green);
+      /* ── Timer (Fitness style) ── */
+      .timer-cell { padding: 20px 16px 16px; }
+      .timer-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
       }
-      .big-time {
-        margin-top: 2px;
+      .timer-digits {
         font-family: var(--font-display);
-        font-size: 38px;
-        font-weight: 800;
-        letter-spacing: -1px;
+        font-size: 48px;
+        font-weight: 700;
+        letter-spacing: -2px;
         line-height: 1;
         font-variant-numeric: tabular-nums;
         color: var(--label);
       }
-      .thinbar {
-        margin-top: var(--x4);
-        height: 6px;
-        border-radius: var(--r-pill);
+      .live-pill {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 100px;
+        background: rgba(52, 199, 89, 0.15);
+        color: var(--green);
+        margin-top: 6px;
+      }
+      .thin-track {
+        margin-top: 16px;
+        height: 4px;
+        border-radius: 100px;
         background: var(--fill);
         overflow: hidden;
       }
-      .thinbar-fill {
+      .thin-fill {
         height: 100%;
-        min-width: 6px;
-        border-radius: var(--r-pill);
+        border-radius: 100px;
         background: var(--label-3);
-        transition: width var(--dur-base) var(--ease);
+        transition: width 1s linear;
       }
-      .tmeta {
+      .timer-meta {
         display: flex;
         justify-content: space-between;
-        margin-top: var(--x2);
-        font-size: 12px;
+        margin-top: 8px;
+        font-size: 13px;
+        color: var(--label-3);
+      }
+
+      .action-cell { padding: 12px 16px 16px; }
+      .btn-pair { display: flex; gap: 10px; }
+      .flex-1 { flex: 1; }
+
+      /* ── iOS Buttons ── */
+      .ios-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        height: 50px;
+        border: none;
+        border-radius: 14px;
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.3px;
+        cursor: pointer;
+        transition: opacity 120ms ease-out;
+        user-select: none;
+      }
+      .ios-btn:active { opacity: 0.72; }
+      .ios-btn.filled {
+        background: var(--blue);
+        color: #fff;
+      }
+      .ios-btn.tinted-destructive {
+        background: rgba(255, 59, 48, 0.12);
+        color: var(--red);
+      }
+
+      .ios-btn-text {
+        border: none;
+        background: transparent;
+        color: var(--blue);
+        font-size: 17px;
+        font-weight: 400;
+        cursor: pointer;
+        padding: 8px 0;
+        transition: opacity 100ms ease-out;
+      }
+      .ios-btn-text:active { opacity: 0.5; }
+
+      /* ── Rows (Settings style) ── */
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        padding: 12px 16px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        color: var(--label);
+        font-family: inherit;
+        font-size: inherit;
+        transition: background 80ms ease-out;
+      }
+      .row:active { background: var(--fill); }
+      .row.disabled {
+        pointer-events: none;
+        opacity: 0.5;
+      }
+      .row-icon {
+        width: 32px; height: 32px;
+        border-radius: 8px;
+        background: var(--fill);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
         color: var(--label-2);
       }
-      .tactions { display: flex; gap: var(--x3); margin-top: var(--x4); }
+      .row-body { flex: 1; min-width: 0; }
+      .row-title {
+        display: block;
+        font-size: 17px;
+        font-weight: 400;
+        letter-spacing: -0.25px;
+        color: var(--label);
+      }
+      .row-subtitle {
+        display: block;
+        font-size: 13px;
+        color: var(--label-3);
+        margin-top: 1px;
+      }
+      .row-badge {
+        font-size: 13px;
+        color: var(--label-3);
+      }
+      .row app-icon:last-child { color: var(--label-3); }
 
-      /* Autoevaluare Liquid Glass */
-      .grade-glass {
-        padding: var(--x5);
-        background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 60%);
-        border-color: var(--glass-stroke);
+      .row-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 14px 16px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 17px;
+        font-weight: 400;
+        color: var(--blue);
+        transition: background 80ms ease-out;
       }
-      :host-context(.dark) .grade-glass {
-        background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 60%);
+      .row-action:active { background: var(--fill); }
+
+      .center-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px 16px;
       }
-      .grade-slider::-webkit-slider-thumb {
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.2);
+      .center-cell.muted { color: var(--label-3); font-size: 15px; }
+
+      /* ── Grade (Health style) ── */
+      .grade-cell { padding: 16px; }
+      .grade-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
       }
-      .grade-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--x4); }
-      .grade-badge {
+      .grade-label {
+        font-size: 17px;
+        font-weight: 400;
+        color: var(--label);
+      }
+      .grade-value {
         font-family: var(--font-display);
         font-size: 22px;
-        font-weight: 800;
-        letter-spacing: -0.6px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
         font-variant-numeric: tabular-nums;
         color: var(--label);
-        background: rgba(120, 130, 150, 0.16);
-        -webkit-backdrop-filter: blur(8px);
-        backdrop-filter: blur(8px);
-        padding: 4px 14px;
-        border-radius: var(--r-md);
-        border: 0.5px solid var(--glass-stroke);
       }
-      .grade-slider { --track-h: 7px; }
-      .scale { display: flex; justify-content: space-between; margin-top: var(--x2); }
 
-      .notes-cell { padding: var(--x4); }
-      .notes-save { display: flex; justify-content: flex-end; margin-top: var(--x3); }
-      .finish { margin-top: var(--x6); }
+      /* iOS slider — native proportions */
+      .ios-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 28px;
+        background: transparent;
+        margin: 0;
+      }
+      .ios-slider::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 100px;
+        background:
+          linear-gradient(to right, var(--label-3) var(--pct, 50%), var(--fill) var(--pct, 50%));
+      }
+      .ios-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 28px;
+        height: 28px;
+        margin-top: -12px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow:
+          0 0.5px 1px rgba(0, 0, 0, 0.16),
+          0 2px 6px rgba(0, 0, 0, 0.12);
+      }
+      .ios-slider::-moz-range-track {
+        height: 4px;
+        border-radius: 100px;
+        background:
+          linear-gradient(to right, var(--label-3) var(--pct, 50%), var(--fill) var(--pct, 50%));
+      }
+      .ios-slider::-moz-range-thumb {
+        width: 28px; height: 28px; border: none; border-radius: 50%;
+        background: #fff;
+        box-shadow:
+          0 0.5px 1px rgba(0, 0, 0, 0.16),
+          0 2px 6px rgba(0, 0, 0, 0.12);
+      }
+
+      .scale-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+        font-size: 13px;
+        color: var(--label-3);
+      }
+
+      /* ── Notes (Apple Notes feel) ── */
+      .notes-cell { padding: 4px 16px 16px; }
+      .notes-area {
+        width: 100%;
+        min-height: 100px;
+        border: none;
+        background: transparent;
+        font-family: inherit;
+        font-size: 17px;
+        line-height: 1.4;
+        color: var(--label);
+        resize: vertical;
+        padding: 12px 0;
+        outline: none;
+      }
+      .notes-area::placeholder { color: var(--label-3); }
+      .save-btn {
+        display: block;
+        margin-left: auto;
+      }
     `,
   ],
 })
@@ -424,7 +587,7 @@ export class SubjectDetailComponent implements OnInit {
     this.pdfAssets.set(assets);
     this.pdfLoading.set(false);
     this.pdfError.set(
-      assets === null ? 'Nu am găsit documente asociate pentru această selecție.' : null,
+      assets === null ? 'Nu am găsit documente pentru această selecție.' : null,
     );
   }
 
@@ -451,7 +614,7 @@ export class SubjectDetailComponent implements OnInit {
       await this.dialogs.show(
         'Subiect indisponibil',
         'Nu am găsit acest subiect pentru selecția curentă. Încearcă alt an sau altă materie.',
-        [{ label: 'Închide', value: true }],
+        [{ label: 'OK', value: true }],
       );
       return;
     }
@@ -482,10 +645,10 @@ export class SubjectDetailComponent implements OnInit {
 
   async confirmStopExam(): Promise<void> {
     const shouldStop = await this.dialogs.confirm(
-      'Oprești rezolvarea?',
-      'Vrei să oprești acum rezolvarea subiectului? Progresul timerului va fi resetat.',
+      'Oprești examenul?',
+      'Progresul timerului va fi resetat.',
       'Oprește',
-      'Continuă',
+      'Anulează',
       true,
     );
     if (!shouldStop) return;
@@ -512,8 +675,8 @@ export class SubjectDetailComponent implements OnInit {
     }
     await this.dialogs.show(
       'Subiect finalizat',
-      'Subiectul a fost marcat ca rezolvat și salvat în istoricul tău.',
-      [{ label: 'Gata', value: true }],
+      'Subiectul a fost salvat în istoricul tău.',
+      [{ label: 'OK', value: true }],
     );
     this.router.navigateByUrl('/home');
   }
