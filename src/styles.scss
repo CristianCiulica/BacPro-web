@@ -212,9 +212,19 @@ input[type='range'].app-slider {
   margin: 0 auto;
 }
 
-/* pagini care merită mai mult spațiu pe desktop (dashboard) */
 @media (min-width: 900px) {
-  .page-scroll.wide-page { max-width: 920px; }
+  .page-scroll {
+    max-width: 760px;
+    margin: 0 auto;
+    padding-left: var(--page);
+    padding-right: var(--page);
+  }
+  .page-scroll.wide-page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding-left: var(--page);
+    padding-right: var(--page);
+  }
 }
 
 .page-pad { padding-left: var(--page); padding-right: var(--page); }

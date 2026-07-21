@@ -536,17 +536,21 @@ export class CardRowComponent {
   imports: [IconComponent],
   template: `
     <header class="bar">
-      @if (showBack()) {
-        <button class="round-btn pressable" (click)="goBack()" aria-label="Înapoi">
-          <app-icon name="chevron-back" [size]="20" />
-        </button>
-      } @else {
-        <ng-content select="[slot=leading]" />
-      }
-      <div class="title" [class.t-large]="large()" [style.fontSize.px]="titleSize()">
-        {{ title() }}
+      <div class="bar-content">
+        @if (showBack()) {
+          <button class="round-btn pressable" (click)="goBack()" aria-label="Înapoi">
+            <app-icon name="chevron-back" [size]="20" />
+          </button>
+        } @else {
+          <ng-content select="[slot=leading]" />
+        }
+        @if (title()) {
+          <div class="title" [style.fontSize.px]="titleSize()">
+            {{ title() }}
+          </div>
+        }
+        <div class="trailing"><ng-content select="[slot=trailing]" /></div>
       </div>
-      <div class="trailing"><ng-content select="[slot=trailing]" /></div>
     </header>
   `,
   styles: [
@@ -555,53 +559,71 @@ export class CardRowComponent {
         position: fixed;
         top: 0; left: var(--sidebar-w, 0); right: 0;
         z-index: 40;
+        height: calc(58px + env(safe-area-inset-top, 0px));
+        padding-top: env(safe-area-inset-top, 0px);
+        background: rgba(255, 255, 255, 0.88);
+        -webkit-backdrop-filter: blur(28px) saturate(1.9);
+        backdrop-filter: blur(28px) saturate(1.9);
+        border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+      }
+      .bar-content {
+        max-width: 660px;
+        width: 100%;
+        margin: 0 auto;
         display: flex;
         align-items: center;
         gap: var(--x2);
-        height: calc(58px + env(safe-area-inset-top, 0px));
-        padding: env(safe-area-inset-top, 0px) var(--x3) 0;
-        background: rgba(244, 246, 251, 0.55);
-        -webkit-backdrop-filter: blur(28px) saturate(1.9);
-        backdrop-filter: blur(28px) saturate(1.9);
-        border-bottom: 0.5px solid rgba(229, 234, 243, 0.4);
+        height: 100%;
+        padding: 0 var(--page);
+      }
+      @media (min-width: 900px) {
+        .bar-content {
+          max-width: 880px;
+          margin: 0;
+          padding-left: 32px;
+          padding-right: 32px;
+        }
       }
       .title {
         flex: 1;
         font-family: var(--font-display);
-        font-weight: 800;
-        letter-spacing: -0.6px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
         color: var(--label);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        text-align: center;
-        position: absolute;
-        left: 60px; right: 60px;
-        pointer-events: none;
+        text-align: left;
       }
-      .title.t-large { text-align: left; position: static; pointer-events: auto; }
       .round-btn {
-        width: 38px; height: 38px;
-        border-radius: 50%;
-        border: 0.5px solid rgba(229, 234, 243, 0.8);
-        background: rgba(255, 255, 255, 0.88);
-        box-shadow: var(--shadow-soft);
-        color: var(--blue);
+        width: 36px; height: 36px;
+        border-radius: 0;
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        color: var(--label);
         display: flex;
         align-items: center;
         justify-content: center;
         flex: none;
-        margin-left: var(--x1);
+        margin-left: -6px;
+        cursor: pointer;
+        padding: 0;
+        transition: opacity 120ms ease-out;
+      }
+      .round-btn:active {
+        opacity: 0.5;
       }
       .trailing { margin-left: auto; display: flex; align-items: center; }
 
       :host-context(.dark) .bar {
-        background: rgba(10, 12, 18, 0.6);
+        background: rgba(10, 12, 18, 0.85);
         border-bottom: 0.5px solid rgba(255, 255, 255, 0.07);
       }
       :host-context(.dark) .round-btn {
-        background: rgba(30, 34, 46, 0.85);
-        border-color: rgba(255, 255, 255, 0.1);
+        background: transparent;
+        border: none;
+        color: #ffffff;
       }
     `,
   ],

@@ -34,7 +34,7 @@ interface DrawerEntry {
       <!-- Sidebar persistent (doar desktop) -->
       <aside class="sidebar">
         <div class="sb-brand">
-          <img class="sb-logo" src="assets/images/app_icon.png" alt="" />
+          <img class="sb-logo" src="assets/images/login_hero_mono.jpg" alt="BacPro" />
           <span class="sb-name">BacPro</span>
         </div>
         <nav class="sb-nav">
@@ -155,12 +155,13 @@ interface DrawerEntry {
       @if (isTabRoute()) {
       <svg style="display: none; position: absolute;">
         <filter id="glass-distortion">
-          <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+          <feTurbulence type="turbulence" baseFrequency="0.004" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="40" />
         </filter>
       </svg>
       <nav class="tabbar-wrap">
         <div class="tabbar">
+          <div class="glass-base"></div>
           <div class="glass-filter"></div>
           <div class="glass-overlay"></div>
           <div class="glass-specular"></div>
@@ -203,7 +204,7 @@ interface DrawerEntry {
         }
       }
       .sb-brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 20px; }
-      .sb-logo { width: 28px; height: 28px; border-radius: 7px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+      .sb-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
       .sb-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--label); }
       .sb-nav { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
       .sb-group { display: flex; flex-direction: column; gap: 2px; }
@@ -442,8 +443,8 @@ interface DrawerEntry {
         justify-content: center;
       }
       .tabbar {
-        --bg-color: rgba(255, 255, 255, 0.25);
-        --highlight: rgba(255, 255, 255, 0.75);
+        --bg-color: rgba(255, 255, 255, 0.08);
+        --highlight: rgba(255, 255, 255, 0.85);
         position: relative;
         width: 100%;
         max-width: 380px;
@@ -451,17 +452,29 @@ interface DrawerEntry {
         overflow: hidden;
         background: transparent;
       }
-      .glass-filter, .glass-overlay, .glass-specular {
+      .glass-base, .glass-filter, .glass-overlay, .glass-specular {
         position: absolute;
         inset: 0;
         border-radius: inherit;
         pointer-events: none;
       }
+      .glass-base {
+        z-index: 1;
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+      }
       .glass-filter {
         z-index: 1;
         -webkit-backdrop-filter: blur(4px);
         backdrop-filter: blur(4px);
-        filter: url(#glass-distortion) saturate(120%) brightness(1.15);
+        filter: url(#glass-distortion) saturate(120%) brightness(1.05);
+        /* Refraction/Distortion on all edges, keeping the center clear */
+        -webkit-mask-image: 
+          linear-gradient(to right, black 0%, transparent 18%, transparent 82%, black 100%),
+          linear-gradient(to bottom, black 0%, transparent 35%, transparent 65%, black 100%);
+        mask-image: 
+          linear-gradient(to right, black 0%, transparent 18%, transparent 82%, black 100%),
+          linear-gradient(to bottom, black 0%, transparent 35%, transparent 65%, black 100%);
       }
       .glass-overlay {
         z-index: 2;
@@ -469,7 +482,8 @@ interface DrawerEntry {
       }
       .glass-specular {
         z-index: 3;
-        box-shadow: inset 1px 1px 1px var(--highlight);
+        box-shadow: inset 1px 1px 2px var(--highlight), inset -1px -1px 2px rgba(255, 255, 255, 0.15);
+        /* Specular highlights run continuously around all edges */
       }
       .glass-content {
         position: relative;
@@ -505,8 +519,8 @@ interface DrawerEntry {
       .tab.active .tlabel { font-weight: 700; }
 
       :host-context(.dark) .tabbar {
-        --bg-color: rgba(0, 0, 0, 0.25);
-        --highlight: rgba(255, 255, 255, 0.15);
+        --bg-color: rgba(0, 0, 0, 0.1);
+        --highlight: rgba(255, 255, 255, 0.25);
       }
 
       /* Pe desktop, chrome-ul de mobil dispare — sidebar-ul îl înlocuiește */

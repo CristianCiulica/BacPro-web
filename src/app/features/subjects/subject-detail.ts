@@ -64,9 +64,6 @@ const BAC_DURATION = 10800;
           <div class="timer-cell">
             <div class="timer-row">
               <div class="timer-digits">{{ formattedTime() }}</div>
-              @if (examStarted()) {
-                <span class="live-pill">Activ</span>
-              }
             </div>
             <div class="thin-track">
               <div class="thin-fill" [style.width.%]="timerProgress() * 100"></div>
@@ -91,7 +88,7 @@ const BAC_DURATION = 10800;
                   <app-icon name="play-fill" [size]="16" />
                   <span>Continuă</span>
                 </button>
-                <button class="ios-btn tinted-destructive flex-1" (click)="confirmStopExam()">
+                <button class="ios-btn tinted-neutral flex-1" (click)="confirmStopExam()">
                   Oprește
                 </button>
               </div>
@@ -286,17 +283,7 @@ const BAC_DURATION = 10800;
         font-variant-numeric: tabular-nums;
         color: var(--label);
       }
-      .live-pill {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        padding: 3px 8px;
-        border-radius: 100px;
-        background: rgba(52, 199, 89, 0.15);
-        color: var(--green);
-        margin-top: 6px;
-      }
+
       .thin-track {
         margin-top: 16px;
         height: 4px;
@@ -341,18 +328,18 @@ const BAC_DURATION = 10800;
       }
       .ios-btn:active { opacity: 0.72; }
       .ios-btn.filled {
-        background: var(--blue);
-        color: #fff;
+        background: var(--label);
+        color: var(--surface);
       }
-      .ios-btn.tinted-destructive {
-        background: rgba(255, 59, 48, 0.12);
-        color: var(--red);
+      .ios-btn.tinted-neutral {
+        background: var(--fill);
+        color: var(--label);
       }
 
       .ios-btn-text {
         border: none;
         background: transparent;
-        color: var(--blue);
+        color: var(--label);
         font-size: 17px;
         font-weight: 400;
         cursor: pointer;
@@ -424,8 +411,8 @@ const BAC_DURATION = 10800;
         cursor: pointer;
         font-family: inherit;
         font-size: 17px;
-        font-weight: 400;
-        color: var(--blue);
+        font-weight: 500;
+        color: var(--label);
         transition: background 80ms ease-out;
       }
       .row-action:active { background: var(--fill); }

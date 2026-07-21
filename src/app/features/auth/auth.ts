@@ -51,59 +51,153 @@ const AUTH_STYLES = `
   .wrap {
     min-height: 100dvh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: var(--x5) var(--x5) var(--x4);
+    padding: 12vh var(--x5) var(--x4);
+    background: var(--bg);
   }
   .panel {
     width: 100%;
     max-width: 430px;
-    border-radius: var(--r-xl);
-    box-shadow: var(--shadow-floating);
-    padding: var(--x5) var(--x6) var(--x6);
     display: flex;
     flex-direction: column;
   }
-  .back-row { align-self: flex-start; background: none; border: none; color: var(--blue); padding: 0; cursor: pointer; }
+  .back-row {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    color: var(--label-2);
+    padding: 0;
+    cursor: pointer;
+    margin-bottom: var(--x5);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 17px;
+  }
   .heading {
-    margin-top: var(--x2);
-    text-align: center;
+    margin-top: 0;
     font-family: var(--font-display);
-    font-size: 30px;
+    font-size: 36px;
     font-weight: 700;
-    letter-spacing: -0.7px;
+    letter-spacing: -0.8px;
     color: var(--label);
   }
-  .sub { text-align: center; margin-top: 6px; }
-  .fields { display: flex; flex-direction: column; gap: var(--x3); margin-top: var(--x6); }
-  .suffix-btn { background: none; border: none; padding: 0 14px 0 0; color: var(--label-3); cursor: pointer; display: flex; }
+  .sub {
+    margin-top: 10px;
+    color: var(--label-2);
+    font-size: 17px;
+    line-height: 1.4;
+  }
+  .fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 40px;
+  }
+  .app-input {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px 16px;
+    min-height: 68px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1.5px solid var(--separator);
+    transition: border-color 0.2s ease-out;
+  }
+  .app-input:focus-within {
+    border-color: var(--label-3);
+  }
+  .app-input label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--label-2);
+    margin-bottom: 4px;
+    align-self: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+  .input-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+  .input-row input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    color: var(--label);
+    outline: none;
+    padding: 0;
+  }
+  .suffix-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--label-3);
+    cursor: pointer;
+    display: flex;
+    margin-left: 8px;
+  }
   .forgot {
     align-self: flex-end;
-    margin-top: var(--x2);
-    background: none; border: none; padding: 0;
-    color: var(--blue); font-weight: 600; font-size: 14px; cursor: pointer;
+    margin-top: var(--x4);
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--label-2);
+    font-size: 15px;
+    cursor: pointer;
   }
-  .divider { display: flex; align-items: center; gap: var(--x3); margin: var(--x4) 0; }
-  .divider::before, .divider::after { content: ''; flex: 1; height: 0.5px; background: var(--separator); }
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: var(--x3);
+    margin: var(--x6) 0;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 0.5px;
+    background: var(--separator);
+  }
+  .divider span {
+    color: var(--label-3);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
   .google-btn {
-    height: 52px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: var(--x3);
-    background: var(--surface);
+    background: transparent;
     border: 1px solid var(--separator);
     border-radius: var(--r-md);
-    box-shadow: var(--shadow-soft);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: -0.2px;
+    font-size: 17px;
+    font-weight: 500;
     color: var(--label);
     cursor: pointer;
+    transition: background 0.2s;
   }
+  .google-btn:active { background: var(--fill); }
   .google-btn:disabled { opacity: 0.45; }
-  .switch-link { text-align: center; margin-top: var(--x5); cursor: pointer; }
-  .switch-link b { color: var(--blue); font-weight: 600; }
+  .switch-link {
+    text-align: center;
+    margin-top: var(--x8);
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--label-2);
+  }
+  .switch-link b {
+    color: var(--label);
+    font-weight: 600;
+  }
 `;
 
 /* -------------------------------------------------------------- Landing -- */
@@ -112,22 +206,28 @@ const AUTH_STYLES = `
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AppButtonComponent, RouterLink],
   template: `
-    <div class="aurora">
+    <div class="landing-bg">
       <div class="landing">
         <div class="hero-block">
-          <img class="hero" src="assets/images/login_hero_mono.jpg" alt="BacPro Hero" />
+          <div class="logo-wrap">
+            <img class="hero" src="assets/images/login_hero_mono.jpg" alt="BacPro Hero" />
+          </div>
           <h1 class="brand">BacPro</h1>
-          <p class="t-subhead tagline">Bacalaureatul, mai simplu.</p>
+          <p class="tagline">Bacalaureatul, mai simplu.</p>
         </div>
         <div class="cta">
-          <app-button label="Autentificare" [height]="56" routerLink="/login/form" />
-          <app-button label="Creează cont" btnStyle="glass" [height]="56" routerLink="/register" />
+          <app-button label="Intră în cont" [height]="56" accent="var(--label)" routerLink="/login/form" />
+          <button class="text-link" routerLink="/register">Nu ai cont? Creează unul</button>
         </div>
       </div>
     </div>
   `,
   styles: [
     `
+      .landing-bg {
+        background: var(--bg);
+        min-height: 100dvh;
+      }
       .landing {
         min-height: 100dvh;
         max-width: 460px;
@@ -135,26 +235,45 @@ const AUTH_STYLES = `
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: var(--x5) var(--x6) var(--x6);
+        padding: 64px 24px 48px;
       }
       .hero-block { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+      .logo-wrap {
+        width: 132px; height: 132px;
+        border-radius: 30px;
+        overflow: hidden;
+        background: var(--fill-secondary);
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: inset 0 0 0 0.5px var(--separator);
+      }
       .hero {
-        width: 118px; height: 118px;
+        width: 100%; height: 100%;
         object-fit: cover;
-        border-radius: var(--r-xl);
-        border: 2px solid #fff;
-        box-shadow: var(--shadow-floating);
       }
       .brand {
-        margin: var(--x6) 0 0;
         font-family: var(--font-display);
-        font-size: 46px;
-        font-weight: 800;
-        letter-spacing: -1.6px;
+        font-size: 40px;
+        font-weight: 700;
+        letter-spacing: -1.2px;
         color: var(--label);
+        margin: 0;
       }
-      .tagline { margin: var(--x2) 0 0; font-size: 16px; line-height: 1.4; }
-      .cta { display: flex; flex-direction: column; gap: var(--x3); padding-bottom: var(--x6); }
+      .tagline { margin: 8px 0 0; font-size: 17px; color: var(--label-2); }
+      .cta { display: flex; flex-direction: column; gap: 16px; padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .text-link {
+        background: none;
+        border: none;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: 500;
+        color: var(--label-2);
+        cursor: pointer;
+        transition: opacity 0.2s;
+      }
+      .text-link:active { opacity: 0.6; }
     `,
   ],
 })
@@ -166,49 +285,54 @@ export class LoginLandingComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, AppButtonComponent, IconComponent],
   template: `
-    <div class="aurora">
+    <div class="landing-bg">
       <div class="wrap">
-        <div class="panel glass-panel">
+        <div class="panel">
           <button class="back-row" (click)="back()" aria-label="Înapoi">
-            <app-icon name="chevron-back" [size]="24" />
+            <app-icon name="chevron-back" [size]="20" />
+            <span>Înapoi</span>
           </button>
+          
           <div class="heading">Autentificare</div>
-          <div class="t-subhead sub">Continuă-ți pregătirea.</div>
+          <div class="sub">Continuă-ți pregătirea.</div>
 
           <div class="fields">
             <div class="app-input">
-              <app-icon name="envelope" [size]="20" />
-              <input type="email" placeholder="Email" [(ngModel)]="email" autocomplete="email" />
+              <label>Email</label>
+              <div class="input-row">
+                <input type="email" [(ngModel)]="email" autocomplete="email" />
+              </div>
             </div>
             <div class="app-input">
-              <app-icon name="lock" [size]="20" />
-              <input
-                [type]="showPassword() ? 'text' : 'password'"
-                placeholder="Parolă"
-                [(ngModel)]="password"
-                autocomplete="current-password"
-              />
-              <button class="suffix-btn" (click)="showPassword.set(!showPassword())" aria-label="Arată parola">
-                <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="19" />
-              </button>
+              <label>Parolă</label>
+              <div class="input-row">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  [(ngModel)]="password"
+                  autocomplete="current-password"
+                />
+                <button class="suffix-btn" (click)="showPassword.set(!showPassword())" aria-label="Arată parola">
+                  <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="19" />
+                </button>
+              </div>
             </div>
           </div>
 
           <button class="forgot" [disabled]="loading()" (click)="resetPassword()">Ai uitat parola?</button>
 
-          <div style="margin-top: var(--x3)">
-            <app-button label="Intră în cont" [loading]="loading()" [disabled]="loading()" (pressed)="signIn()" />
+          <div style="margin: 48px 0 16px">
+            <app-button label="Intră în cont" [height]="54" accent="var(--label)" [loading]="loading()" [disabled]="loading()" (pressed)="signIn()" />
           </div>
 
-          <div class="divider"><span class="t-caption">sau continuă cu</span></div>
+          <div class="divider"><span>sau</span></div>
 
           <button class="google-btn pressable" [disabled]="loading()" (click)="signInWithGoogle()">
             <span [innerHTML]="googleLogo"></span>
             Continuă cu Google
           </button>
 
-          <div class="switch-link t-subhead" (click)="goRegister()">
-            Nu ai cont?&nbsp; <b>Creează unul</b>
+          <div class="switch-link" (click)="goRegister()">
+            Nu ai cont? <b>Creează unul</b>
           </div>
         </div>
       </div>
@@ -302,59 +426,65 @@ export class LoginFormComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, AppButtonComponent, IconComponent],
   template: `
-    <div class="aurora">
+    <div class="landing-bg">
       <div class="wrap">
-        <div class="panel glass-panel">
+        <div class="panel">
           <button class="back-row" (click)="back()" aria-label="Înapoi">
-            <app-icon name="chevron-back" [size]="24" />
+            <app-icon name="chevron-back" [size]="20" />
+            <span>Înapoi</span>
           </button>
+          
           <div class="heading">Creează cont</div>
-          <div class="t-subhead sub">Îți salvăm progresul și sesiunile.</div>
+          <div class="sub">Îți salvăm progresul și sesiunile.</div>
 
           <div class="fields">
             <div class="app-input">
-              <app-icon name="envelope" [size]="20" />
-              <input type="email" placeholder="Email" [(ngModel)]="email" autocomplete="email" />
+              <label>Email</label>
+              <div class="input-row">
+                <input type="email" [(ngModel)]="email" autocomplete="email" />
+              </div>
             </div>
             <div class="app-input">
-              <app-icon name="lock" [size]="20" />
-              <input
-                [type]="showPassword() ? 'text' : 'password'"
-                placeholder="Parolă"
-                [(ngModel)]="password"
-                autocomplete="new-password"
-              />
-              <button class="suffix-btn" (click)="showPassword.set(!showPassword())" aria-label="Arată parola">
-                <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="19" />
-              </button>
+              <label>Parolă</label>
+              <div class="input-row">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  [(ngModel)]="password"
+                  autocomplete="new-password"
+                />
+                <button class="suffix-btn" (click)="showPassword.set(!showPassword())" aria-label="Arată parola">
+                  <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="19" />
+                </button>
+              </div>
             </div>
             <div class="app-input">
-              <app-icon name="lock-rotation" [size]="20" />
-              <input
-                [type]="showConfirm() ? 'text' : 'password'"
-                placeholder="Confirmă parola"
-                [(ngModel)]="confirm"
-                autocomplete="new-password"
-              />
-              <button class="suffix-btn" (click)="showConfirm.set(!showConfirm())" aria-label="Arată parola">
-                <app-icon [name]="showConfirm() ? 'eye-off' : 'eye'" [size]="19" />
-              </button>
+              <label>Confirmă parola</label>
+              <div class="input-row">
+                <input
+                  [type]="showConfirm() ? 'text' : 'password'"
+                  [(ngModel)]="confirm"
+                  autocomplete="new-password"
+                />
+                <button class="suffix-btn" (click)="showConfirm.set(!showConfirm())" aria-label="Arată parola">
+                  <app-icon [name]="showConfirm() ? 'eye-off' : 'eye'" [size]="19" />
+                </button>
+              </div>
             </div>
           </div>
 
-          <div style="margin-top: var(--x5)">
-            <app-button label="Creează cont" [loading]="loading()" [disabled]="loading()" (pressed)="register()" />
+          <div style="margin: 48px 0 16px">
+            <app-button label="Creează cont" [height]="54" accent="var(--label)" [loading]="loading()" [disabled]="loading()" (pressed)="register()" />
           </div>
 
-          <div class="divider"><span class="t-caption">sau continuă cu</span></div>
+          <div class="divider"><span>sau</span></div>
 
           <button class="google-btn pressable" [disabled]="loading()" (click)="signInWithGoogle()">
             <span [innerHTML]="googleLogo"></span>
             Continuă cu Google
           </button>
 
-          <div class="switch-link t-subhead" (click)="goLogin()">
-            Ai deja cont?&nbsp; <b>Intră în cont</b>
+          <div class="switch-link" (click)="goLogin()">
+            Ai deja cont? <b>Intră în cont</b>
           </div>
         </div>
       </div>
