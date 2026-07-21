@@ -291,7 +291,7 @@ export class CountComponent implements OnDestroy {
   selector: 'app-pill-badge',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span class="pill" [style.background]="tint(color())" [style.color]="color()">
+    <span class="pill">
       {{ label() }}
     </span>
   `,
@@ -303,6 +303,8 @@ export class CountComponent implements OnDestroy {
       font-size: 12px;
       font-weight: 600;
       white-space: nowrap;
+      background: var(--fill);
+      color: var(--label-2);
     }`,
   ],
 })
@@ -558,10 +560,10 @@ export class CardRowComponent {
         gap: var(--x2);
         height: calc(58px + env(safe-area-inset-top, 0px));
         padding: env(safe-area-inset-top, 0px) var(--x3) 0;
-        background: rgba(244, 246, 251, 0.62);
-        -webkit-backdrop-filter: blur(32px) saturate(1.6);
-        backdrop-filter: blur(32px) saturate(1.6);
-        border-bottom: 0.5px solid rgba(229, 234, 243, 0.55);
+        background: rgba(244, 246, 251, 0.55);
+        -webkit-backdrop-filter: blur(28px) saturate(1.9);
+        backdrop-filter: blur(28px) saturate(1.9);
+        border-bottom: 0.5px solid rgba(229, 234, 243, 0.4);
       }
       .title {
         flex: 1;

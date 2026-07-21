@@ -235,8 +235,8 @@ a { color: var(--blue); text-decoration: none; }
 
 /* intrare în scenă — folosit pe carduri de dashboard */
 @keyframes rise-in {
-  from { opacity: 0; transform: translateY(14px) scale(0.985); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 .rise { animation: rise-in var(--dur-slow) var(--ease) both; }
 .rise-1 { animation-delay: 40ms; }
@@ -294,7 +294,7 @@ a { color: var(--blue); text-decoration: none; }
   justify-content: center;
 }
 
-/* View Transitions — cross-fade + ridicare subtilă între rute */
+/* View Transitions — cross-fade pur (fără deplasare pe verticală) */
 ::view-transition-old(root) {
   animation: vt-out 200ms var(--ease) both;
 }
@@ -303,8 +303,8 @@ a { color: var(--blue); text-decoration: none; }
 }
 @keyframes vt-out { to { opacity: 0; } }
 @keyframes vt-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* =============================================================================

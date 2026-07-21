@@ -252,19 +252,38 @@ interface DrawerEntry {
         z-index: 61;
         width: 84%;
         max-width: 380px;
-        background: rgba(252, 253, 255, 0.94);
-        -webkit-backdrop-filter: blur(32px) saturate(1.6);
-        backdrop-filter: blur(32px) saturate(1.6);
+        /* Liquid Glass (stil Apple): blur frosted dominant, lensing doar pe muchii */
+        background: rgba(250, 251, 253, 0.5);
+        -webkit-backdrop-filter: blur(30px) saturate(1.8);
+        backdrop-filter: blur(30px) saturate(1.8);
         border-radius: 0 var(--r-xl) var(--r-xl) 0;
-        border-right: 1px solid rgba(255, 255, 255, 0.7);
-        box-shadow: var(--shadow-floating);
-        transform: translateX(-105%);
-        transition: transform var(--dur-slow) var(--spring);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.6),
+          inset 1px 0 0 rgba(255, 255, 255, 0.3),
+          0 24px 70px rgba(14, 27, 58, 0.2);
+        transform: translateX(-100%);
+        transition: transform 340ms cubic-bezier(0.32, 0.72, 0, 1);
         display: flex;
         flex-direction: column;
         overflow: hidden;
         padding-top: env(safe-area-inset-top, 0px);
       }
+      /* sheen diagonal — reflexia de lumină pe sticlă */
+      .drawer::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.22) 0%,
+          rgba(255, 255, 255, 0) 30%,
+          rgba(255, 255, 255, 0) 100%
+        );
+      }
+      .drawer > * { position: relative; z-index: 1; }
       .drawer.open { transform: translateX(0); }
       .drawer-head { display: flex; gap: 14px; padding: var(--x6) var(--x5) var(--x5); }
       .avatar {
@@ -316,8 +335,19 @@ interface DrawerEntry {
       .dlabel { flex: 1; font-weight: 500; }
 
       :host-context(.dark) .drawer {
-        background: rgba(16, 19, 27, 0.92);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(14, 17, 24, 0.55);
+        box-shadow:
+          inset 0 1px 1px rgba(255, 255, 255, 0.14),
+          inset 1px 0 0 rgba(255, 255, 255, 0.08),
+          0 24px 70px rgba(0, 0, 0, 0.5);
+      }
+      :host-context(.dark) .drawer::before {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.14) 0%,
+          rgba(255, 255, 255, 0) 45%,
+          rgba(255, 255, 255, 0.06) 100%
+        );
       }
       :host-context(.dark) .ditem:active { background: rgba(255, 255, 255, 0.06); }
       :host-context(.dark) .scrim { background: rgba(0, 0, 0, 0.55); }
@@ -331,26 +361,44 @@ interface DrawerEntry {
         justify-content: center;
       }
       .tabbar {
+        position: relative;
         display: flex;
         width: 100%;
         max-width: 380px;
         padding: 6px;
         border-radius: var(--r-pill);
-        /* Liquid Glass: sticlă pură — blur-ul e singurul material */
+        /* Liquid Glass iOS: fundal vizibil, lentilă doar pe muchii + rim specular */
+        background: rgba(255, 255, 255, 0.06);
+        -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.05);
+        backdrop-filter: blur(16px) saturate(1.8) brightness(1.05);
+        border: 1px solid rgba(255, 255, 255, 0.55);
+        box-shadow:
+          0 10px 30px rgba(14, 27, 58, 0.1),
+          inset 0 1.5px 1px rgba(255, 255, 255, 0.85),
+          inset 0 -6px 12px rgba(255, 255, 255, 0.18),
+          inset 0 0 0 0.5px rgba(255, 255, 255, 0.5);
+      }
+      /* rim de refracție: muchie luminoasă + sheen sus, ca pill-ul iOS */
+      .tabbar::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        box-shadow:
+          inset 0 0 5px 1px rgba(255, 255, 255, 0.4),
+          inset 1px 1px 1px rgba(255, 255, 255, 0.6),
+          inset -1px -1px 1px rgba(255, 255, 255, 0.35);
         background: linear-gradient(
           180deg,
-          rgba(255, 255, 255, 0.14),
-          rgba(255, 255, 255, 0.05)
+          rgba(255, 255, 255, 0.22) 0%,
+          rgba(255, 255, 255, 0) 42%
         );
-        -webkit-backdrop-filter: blur(24px) saturate(1.9);
-        backdrop-filter: blur(24px) saturate(1.9);
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow:
-          0 12px 32px rgba(14, 27, 58, 0.08),
-          inset 0 1px 0 rgba(255, 255, 255, 0.5),
-          inset 0 -1px 0 rgba(255, 255, 255, 0.1);
       }
       .tab {
+        position: relative;
+        z-index: 1;
         flex: 1;
         display: flex;
         flex-direction: column;
@@ -371,7 +419,7 @@ interface DrawerEntry {
       .tab:active { opacity: 0.55; }
       .tab.active {
         /* pastilă de sticlă discretă peste sticla barei */
-        background: rgba(255, 255, 255, 0.38);
+        background: rgba(255, 255, 255, 0.26);
         color: var(--blue);
         box-shadow:
           0 2px 10px rgba(14, 27, 58, 0.06),
