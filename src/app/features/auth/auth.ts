@@ -115,7 +115,7 @@ const AUTH_STYLES = `
     <div class="aurora">
       <div class="landing">
         <div class="hero-block">
-          <img class="hero" src="assets/images/login_hero.png" alt="BacPro" />
+          <img class="hero" src="assets/images/login_hero_mono.jpg" alt="BacPro Hero" />
           <h1 class="brand">BacPro</h1>
           <p class="t-subhead tagline">Bacalaureatul, mai simplu.</p>
         </div>

@@ -83,18 +83,20 @@ interface DrawerEntry {
           (click)="closeMenu()"
         ></div>
         <aside class="drawer" [class.open]="menuOpen()">
+          <!-- Profile Header (Apple ID Style) -->
           <div class="drawer-head">
             <div class="avatar">
-              <app-icon name="person-fill" [size]="30" />
+              <app-icon name="person-fill" [size]="28" />
             </div>
             <div class="who">
-              <div class="t-title uname">{{ auth.displayName }}</div>
-              <div class="t-subhead school">
-                {{ profile().school }} · {{ profile().selectedProfile }}
+              <div class="uname">{{ auth.displayName }}</div>
+              <div class="school">
+                {{ profile().school === 'Adaugă școala ta' ? 'Adaugă liceul tău' : profile().school }} · {{ profile().selectedProfile }}
               </div>
             </div>
           </div>
 
+          <!-- Quick Stats Grouped Card -->
           <div class="stats">
             <div class="stat">
               <div class="sval">{{ progress().solvedCount }}</div>
@@ -112,23 +114,37 @@ interface DrawerEntry {
             </div>
           </div>
 
+          <!-- iOS Grouped Navigation List -->
           <nav class="drawer-body">
             @for (section of sections; track $index) {
-              <div class="dsection">
-                @for (entry of section; track entry.label) {
-                  <div class="ditem" (click)="go(entry.route)">
-                    <span class="dicon"><app-icon [name]="entry.icon" [size]="21" /></span>
-                    <span class="t-body dlabel">{{ entry.label }}</span>
-                    <app-icon name="chevron-right" [size]="14" style="color: var(--label-3)" />
-                  </div>
+              <div class="dgroup">
+                @if ($index === 0) {
+                  <div class="dsection-title">CONT</div>
+                } @else if ($index === 1) {
+                  <div class="dsection-title">APLICAȚIE</div>
+                } @else if ($index === 2) {
+                  <div class="dsection-title">DESPRE</div>
                 }
+                <div class="dsection">
+                  @for (entry of section; track entry.label) {
+                    <div class="ditem pressable" (click)="go(entry.route)">
+                      <span class="dicon"><app-icon [name]="entry.icon" [size]="20" /></span>
+                      <span class="dlabel">{{ entry.label }}</span>
+                      <app-icon name="chevron-right" [size]="13" class="dchevron" />
+                    </div>
+                  }
+                </div>
               </div>
             }
-            <div class="dsection">
-              <div class="ditem" (click)="signOut()">
-                <span class="dicon danger"><app-icon name="logout" [size]="21" /></span>
-                <span class="t-body dlabel danger">Deconectează-te</span>
-                <app-icon name="chevron-right" [size]="14" style="color: var(--label-3)" />
+
+            <div class="dgroup">
+              <div class="dsection-title">SESIUNE</div>
+              <div class="dsection">
+                <div class="ditem pressable" (click)="signOut()">
+                  <span class="dicon danger"><app-icon name="logout" [size]="20" /></span>
+                  <span class="dlabel danger">Deconectează-te</span>
+                  <app-icon name="chevron-right" [size]="13" class="dchevron danger" />
+                </div>
               </div>
             </div>
           </nav>
@@ -137,18 +153,29 @@ interface DrawerEntry {
 
       <!-- Tab bar glass flotant (mobil, doar pe taburi) -->
       @if (isTabRoute()) {
+      <svg style="display: none; position: absolute;">
+        <filter id="glass-distortion">
+          <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+        </filter>
+      </svg>
       <nav class="tabbar-wrap">
         <div class="tabbar">
-          @for (tab of tabs; track tab.route) {
-            <button
-              class="tab"
-              [class.active]="isActive(tab.route)"
-              (click)="goTab(tab.route)"
-            >
-              <app-icon [name]="tab.icon" [size]="23" />
-              <span class="tlabel">{{ tab.label }}</span>
-            </button>
-          }
+          <div class="glass-filter"></div>
+          <div class="glass-overlay"></div>
+          <div class="glass-specular"></div>
+          <div class="glass-content">
+            @for (tab of tabs; track tab.route) {
+              <button
+                class="tab"
+                [class.active]="isActive(tab.route)"
+                (click)="goTab(tab.route)"
+              >
+                <app-icon [name]="tab.icon" [size]="23" />
+                <span class="tlabel">{{ tab.label }}</span>
+              </button>
+            }
+          </div>
         </div>
       </nav>
       }
@@ -165,73 +192,70 @@ interface DrawerEntry {
           display: flex;
           flex-direction: column;
           position: fixed;
-          top: 14px; left: 14px; bottom: 14px;
-          width: calc(var(--sidebar-w) - 26px);
+          top: 0; left: 0; bottom: 0;
+          width: var(--sidebar-w);
           z-index: 70;
-          padding: var(--x5) var(--x3) var(--x4);
-          border-radius: 26px;
-          background: rgba(255, 255, 255, 0.62);
-          -webkit-backdrop-filter: blur(40px) saturate(1.8);
-          backdrop-filter: blur(40px) saturate(1.8);
-          border: 1px solid rgba(255, 255, 255, 0.7);
-          box-shadow: var(--shadow-floating);
+          padding: 36px 12px 16px;
+          background: var(--surface);
+          border-right: 0.5px solid var(--separator);
+          border-radius: 0;
+          box-shadow: none;
         }
       }
-      .sb-brand { display: flex; align-items: center; gap: 11px; padding: 0 var(--x3) var(--x6); }
-      .sb-logo { width: 34px; height: 34px; border-radius: 9px; box-shadow: var(--shadow-soft); }
-      .sb-name { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
-      .sb-nav { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+      .sb-brand { display: flex; align-items: center; gap: 10px; padding: 0 10px 20px; }
+      .sb-logo { width: 28px; height: 28px; border-radius: 7px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+      .sb-name { font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--label); }
+      .sb-nav { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
       .sb-group { display: flex; flex-direction: column; gap: 2px; }
       .sb-label {
         font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.7px;
-        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.2px;
         color: var(--label-3);
-        padding: 0 var(--x3);
-        margin: var(--x5) 0 var(--x2);
+        padding: 0 10px;
+        margin-bottom: 4px;
       }
       .sb-item {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 9px;
         width: 100%;
-        padding: 9px var(--x3);
+        padding: 6px 10px;
         border: none;
         background: transparent;
-        border-radius: 11px;
+        border-radius: 6px;
         color: var(--label-2);
-        font-size: 15px;
-        font-weight: 500;
-        letter-spacing: -0.2px;
+        font-size: 13.5px;
+        font-weight: 400;
+        letter-spacing: -0.15px;
         text-align: left;
         cursor: pointer;
-        transition: background 160ms var(--ease), color 160ms var(--ease), transform 160ms var(--spring);
+        transition: background 100ms ease-out, color 100ms ease-out;
       }
       .sb-item span { flex: 1; }
-      .sb-item:hover { background: var(--fill); color: var(--label); }
-      .sb-item:active { transform: scale(0.98); }
-      .sb-item.active { background: rgba(0, 122, 255, 0.12); color: var(--blue); font-weight: 600; }
-      .sb-item.active app-icon { color: var(--blue); }
+      .sb-item:hover { background: rgba(0, 0, 0, 0.04); color: var(--label); }
+      .sb-item:active { background: rgba(0, 0, 0, 0.08); }
+      .sb-item.active { background: var(--blue); color: #ffffff; font-weight: 500; }
+      .sb-item.active app-icon { color: #ffffff; }
       .sb-item.danger { color: var(--red); }
-      .sb-item.danger:hover { background: rgba(255, 59, 48, 0.1); }
-      .sb-foot { padding-top: var(--x3); margin-top: var(--x2); border-top: 1px solid var(--separator); }
-      .sb-user { display: flex; align-items: center; gap: 10px; padding: 0 var(--x3) var(--x3); }
+      .sb-item.danger:hover { background: rgba(255, 59, 48, 0.08); }
+      .sb-foot { padding-top: 12px; border-top: 0.5px solid var(--separator); }
+      .sb-user { display: flex; align-items: center; gap: 10px; padding: 4px 8px 8px; }
       .sb-avatar {
-        width: 38px; height: 38px;
+        width: 32px; height: 32px;
         flex: none;
-        border-radius: 11px;
+        border-radius: 50%;
         background: var(--fill);
         color: var(--label-2);
         display: flex; align-items: center; justify-content: center;
       }
       .sb-uinfo { min-width: 0; }
-      .sb-uname { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .sb-uemail { font-size: 12px; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sb-uname { font-size: 13px; font-weight: 600; color: var(--label); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sb-uemail { font-size: 11px; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
       :host-context(.dark) .sidebar {
-        background: rgba(16, 19, 27, 0.72);
-        border-right-color: rgba(255, 255, 255, 0.07);
+        background: var(--surface);
+        border-right-color: rgba(255, 255, 255, 0.08);
       }
       :host-context(.dark) .sb-item:hover { background: rgba(255, 255, 255, 0.06); }
 
@@ -250,106 +274,163 @@ interface DrawerEntry {
         position: fixed;
         top: 0; bottom: 0; left: 0;
         z-index: 61;
-        width: 84%;
-        max-width: 380px;
-        /* Liquid Glass (stil Apple): blur frosted dominant, lensing doar pe muchii */
-        background: rgba(250, 251, 253, 0.5);
-        -webkit-backdrop-filter: blur(30px) saturate(1.8);
-        backdrop-filter: blur(30px) saturate(1.8);
-        border-radius: 0 var(--r-xl) var(--r-xl) 0;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.6),
-          inset 1px 0 0 rgba(255, 255, 255, 0.3),
-          0 24px 70px rgba(14, 27, 58, 0.2);
+        width: 86%;
+        max-width: 360px;
+        background: var(--bg); /* systemGroupedBackground */
+        border-radius: 0 24px 24px 0;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
         transform: translateX(-100%);
-        transition: transform 340ms cubic-bezier(0.32, 0.72, 0, 1);
+        transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
         display: flex;
         flex-direction: column;
         overflow: hidden;
         padding-top: env(safe-area-inset-top, 0px);
       }
-      /* sheen diagonal — reflexia de lumină pe sticlă */
-      .drawer::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        pointer-events: none;
-        border-radius: inherit;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.22) 0%,
-          rgba(255, 255, 255, 0) 30%,
-          rgba(255, 255, 255, 0) 100%
-        );
-      }
-      .drawer > * { position: relative; z-index: 1; }
       .drawer.open { transform: translateX(0); }
-      .drawer-head { display: flex; gap: 14px; padding: var(--x6) var(--x5) var(--x5); }
-      .avatar {
-        width: 60px; height: 60px;
-        flex: none;
-        border-radius: var(--r-md);
-        background: var(--fill);
-        color: var(--label-2);
-        display: flex; align-items: center; justify-content: center;
-      }
-      .who { min-width: 0; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; justify-content: center; }
-      .uname { font-size: 19px; }
-      .school { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-      .stats {
-        margin: 0 var(--x4) var(--x2);
-        background: var(--fill);
-        border-radius: var(--r-md);
-        padding: var(--x4) var(--x3);
+
+      /* Profile Header (Apple ID style) */
+      .drawer-head {
         display: flex;
         align-items: center;
+        gap: 16px;
+        padding: 24px 18px 18px;
+      }
+      .avatar {
+        width: 58px;
+        height: 58px;
+        flex: none;
+        border-radius: 50%;
+        background: var(--fill-secondary);
+        color: var(--label-2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .who {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .uname {
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: -0.4px;
+        color: var(--label);
+      }
+      .school {
+        font-size: 13px;
+        color: var(--label-2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Quick Stats Grouped Card */
+      .stats {
+        margin: 0 16px 20px;
+        background: var(--surface); /* secondarySystemGroupedBackground */
+        border-radius: 18px;
+        padding: 14px 12px;
+        display: flex;
+        align-items: center;
+        box-shadow: inset 0 0 0 0.5px var(--hairline);
       }
       .stat { flex: 1; text-align: center; }
-      .sval { font-family: var(--font-display); font-size: 21px; font-weight: 700; letter-spacing: -0.5px; }
-      .vdiv { width: 0.5px; height: 38px; margin: 0 6px; background: var(--separator); }
-      .drawer-body { flex: 1; overflow-y: auto; padding: var(--x2) var(--x4) var(--x5); }
+      .sval {
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.4px;
+        color: var(--label);
+      }
+      .vdiv {
+        width: 0.5px;
+        height: 28px;
+        background: var(--separator);
+      }
+
+      /* Navigation Body & Grouped Sections (iOS Settings style) */
+      .drawer-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0 16px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .dgroup {
+        display: flex;
+        flex-direction: column;
+      }
+      .dsection-title {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+        color: var(--label-2);
+        margin: 0 0 6px 12px;
+        text-transform: uppercase;
+      }
       .dsection {
-        background: var(--fill);
-        border-radius: var(--r-md);
+        background: var(--surface); /* secondarySystemGroupedBackground */
+        border-radius: 18px;
         overflow: hidden;
-        margin-bottom: var(--x3);
+        box-shadow: inset 0 0 0 0.5px var(--hairline);
       }
       .ditem {
         display: flex;
         align-items: center;
-        gap: var(--x3);
-        padding: 11px 14px;
+        gap: 14px;
+        min-height: 54px;
+        padding: 0 16px;
         cursor: pointer;
+        background: transparent;
+        transition: background 120ms ease-out;
       }
-      .ditem:not(:last-child) { border-bottom: 0.5px solid var(--separator); }
-      .ditem:active { background: rgba(228, 234, 242, 0.5); }
+      .ditem:not(:last-child) {
+        border-bottom: 0.5px solid var(--separator);
+      }
+      .ditem:active {
+        background: rgba(0, 0, 0, 0.05);
+      }
+      :host-context(.dark) .ditem:active {
+        background: rgba(255, 255, 255, 0.08);
+      }
       .dicon {
         width: 28px;
         display: inline-flex;
+        align-items: center;
         justify-content: center;
         color: var(--label-2);
         flex: none;
       }
-      .dicon.danger, .dlabel.danger { color: var(--red); }
-      .dlabel { flex: 1; font-weight: 500; }
+      .dicon.danger {
+        color: var(--red);
+      }
+      .dlabel {
+        flex: 1;
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: -0.2px;
+        color: var(--label);
+      }
+      .dlabel.danger {
+        color: var(--red);
+      }
+      .dchevron {
+        color: var(--label-3);
+        flex: none;
+      }
+      .dchevron.danger {
+        color: var(--red);
+        opacity: 0.6;
+      }
 
       :host-context(.dark) .drawer {
-        background: rgba(14, 17, 24, 0.55);
-        box-shadow:
-          inset 0 1px 1px rgba(255, 255, 255, 0.14),
-          inset 1px 0 0 rgba(255, 255, 255, 0.08),
-          0 24px 70px rgba(0, 0, 0, 0.5);
+        background: var(--bg);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       }
-      :host-context(.dark) .drawer::before {
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.14) 0%,
-          rgba(255, 255, 255, 0) 45%,
-          rgba(255, 255, 255, 0.06) 100%
-        );
-      }
-      :host-context(.dark) .ditem:active { background: rgba(255, 255, 255, 0.06); }
       :host-context(.dark) .scrim { background: rgba(0, 0, 0, 0.55); }
 
       .tabbar-wrap {
@@ -361,40 +442,42 @@ interface DrawerEntry {
         justify-content: center;
       }
       .tabbar {
+        --bg-color: rgba(255, 255, 255, 0.25);
+        --highlight: rgba(255, 255, 255, 0.75);
         position: relative;
-        display: flex;
         width: 100%;
         max-width: 380px;
-        padding: 6px;
         border-radius: var(--r-pill);
-        /* Liquid Glass iOS: fundal vizibil, lentilă doar pe muchii + rim specular */
-        background: rgba(255, 255, 255, 0.06);
-        -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.05);
-        backdrop-filter: blur(16px) saturate(1.8) brightness(1.05);
-        border: 1px solid rgba(255, 255, 255, 0.55);
-        box-shadow:
-          0 10px 30px rgba(14, 27, 58, 0.1),
-          inset 0 1.5px 1px rgba(255, 255, 255, 0.85),
-          inset 0 -6px 12px rgba(255, 255, 255, 0.18),
-          inset 0 0 0 0.5px rgba(255, 255, 255, 0.5);
+        overflow: hidden;
+        background: transparent;
       }
-      /* rim de refracție: muchie luminoasă + sheen sus, ca pill-ul iOS */
-      .tabbar::before {
-        content: '';
+      .glass-filter, .glass-overlay, .glass-specular {
         position: absolute;
         inset: 0;
-        z-index: 0;
-        pointer-events: none;
         border-radius: inherit;
-        box-shadow:
-          inset 0 0 5px 1px rgba(255, 255, 255, 0.4),
-          inset 1px 1px 1px rgba(255, 255, 255, 0.6),
-          inset -1px -1px 1px rgba(255, 255, 255, 0.35);
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.22) 0%,
-          rgba(255, 255, 255, 0) 42%
-        );
+        pointer-events: none;
+      }
+      .glass-filter {
+        z-index: 1;
+        -webkit-backdrop-filter: blur(4px);
+        backdrop-filter: blur(4px);
+        filter: url(#glass-distortion) saturate(120%) brightness(1.15);
+      }
+      .glass-overlay {
+        z-index: 2;
+        background: var(--bg-color);
+      }
+      .glass-specular {
+        z-index: 3;
+        box-shadow: inset 1px 1px 1px var(--highlight);
+      }
+      .glass-content {
+        position: relative;
+        z-index: 4;
+        padding: 6px;
+        display: flex;
+        justify-content: center;
+        width: 100%;
       }
       .tab {
         position: relative;
@@ -410,35 +493,20 @@ interface DrawerEntry {
         background: transparent;
         color: var(--label-2);
         cursor: pointer;
-        /* comutare crocantă, fără bounce — ca tab bar-ul din iOS */
-        transition:
-          background 160ms ease-out,
-          color 160ms ease-out,
-          opacity 120ms ease-out;
+        transition: background-color 0.2s ease, color 160ms ease-out, opacity 120ms ease-out;
       }
+      .tab:hover { background-color: rgba(255, 255, 255, 0.1); }
       .tab:active { opacity: 0.55; }
       .tab.active {
-        /* pastilă de sticlă discretă peste sticla barei */
-        background: rgba(255, 255, 255, 0.26);
-        color: var(--blue);
-        box-shadow:
-          0 2px 10px rgba(14, 27, 58, 0.06),
-          inset 0 1px 0 rgba(255, 255, 255, 0.7),
-          inset 0 0 0 0.5px rgba(255, 255, 255, 0.45);
+        background-color: rgba(255, 255, 255, 0.2);
+        color: var(--label);
       }
       .tlabel { font-size: 10.5px; font-weight: 500; letter-spacing: 0.1px; }
       .tab.active .tlabel { font-weight: 700; }
 
       :host-context(.dark) .tabbar {
-        background: linear-gradient(180deg, rgba(30, 34, 46, 0.4), rgba(30, 34, 46, 0.2));
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow:
-          0 12px 32px rgba(0, 0, 0, 0.45),
-          inset 0 1px 0 rgba(255, 255, 255, 0.1);
-      }
-      :host-context(.dark) .tab.active {
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        --bg-color: rgba(0, 0, 0, 0.25);
+        --highlight: rgba(255, 255, 255, 0.15);
       }
 
       /* Pe desktop, chrome-ul de mobil dispare — sidebar-ul îl înlocuiește */

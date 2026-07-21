@@ -43,7 +43,7 @@ const MONTHS_RO = [
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppButtonComponent, CountComponent, IconComponent, TintedIconComponent],
+  imports: [CountComponent, IconComponent, TintedIconComponent],
   template: `
     <header class="bar">
       <button class="round-btn pressable" (click)="shell?.openMenu()" aria-label="Meniu">
@@ -129,57 +129,65 @@ const MONTHS_RO = [
           </div>
         </div>
 
-        <!-- ============ DESKTOP: hero + statistici ============ -->
+        <!-- ============ DESKTOP: macOS HIG Layout (≥960px) ============ -->
         <div class="top-d">
-          <section class="hero card rise">
-            <div class="hero-l">
-              <div class="t-section date">{{ todayLabel() }}</div>
-              <h1 class="hero-greet">Bine ai revenit,<br />{{ firstName() }}</h1>
-              <div class="streak-chip">
-                <app-icon name="flame" [size]="15" />
-                <span class="streak-n"><app-count [value]="progress().streakDays" /></span>
-                <span>{{ progress().streakDays === 1 ? 'zi' : 'zile' }} la rând</span>
-              </div>
-              <app-button
-                label="Continuă învățarea"
-                icon="play-fill"
-                [expanded]="false"
-                class="inline-host hero-cta"
-                (pressed)="continueLearning()"
-              />
+          <header class="mac-header rise">
+            <div class="mac-title-area">
+              <div class="mac-date">{{ todayLabel() }}</div>
+              <h1 class="mac-title">Bine ai revenit, {{ firstName() }}</h1>
             </div>
-            <div class="hero-r">
-              <div class="ring-wrap">
-                <svg viewBox="0 0 120 120" class="ring">
-                  <circle class="ring-track" cx="60" cy="60" r="52" />
-                  <circle class="ring-fill" cx="60" cy="60" r="52" [attr.stroke-dashoffset]="ringOffset()" />
-                </svg>
-                <div class="ring-center">
-                  <div class="ring-val"><app-count [value]="weeklySolved() " /><span class="ring-goal">/{{ weeklyGoal }}</span></div>
-                  <div class="rcap">Obiectiv</div>
-                </div>
+            <div class="mac-header-actions">
+              <div class="mac-streak-badge">
+                <app-icon name="flame" [size]="14" />
+                <span>{{ progress().streakDays }} {{ progress().streakDays === 1 ? 'zi' : 'zile' }} la rând</span>
               </div>
-              <div class="hero-week-msg">{{ goalDone() ? 'Obiectiv atins. Impecabil.' : 'subiecte săptămâna asta' }}</div>
+              <button class="mac-btn-primary" (click)="continueLearning()">
+                <app-icon name="play-fill" [size]="14" />
+                <span>Continuă învățarea</span>
+              </button>
             </div>
-          </section>
+          </header>
 
-          <div class="stats rise rise-1">
-            @for (s of stats(); track s.label) {
-              <div class="stat card">
-                <div class="stat-head">
-                  <span class="stat-icon"><app-icon [name]="s.icon" [size]="15" /></span>
-                  <span class="stat-title">{{ s.label }}</span>
+          <div class="mac-panel card rise rise-1">
+            <div class="mac-panel-hero">
+              <div class="mac-ring-side">
+                <div class="mac-ring-wrap">
+                  <svg viewBox="0 0 120 120" class="mac-ring">
+                    <circle class="mac-ring-track" cx="60" cy="60" r="52" />
+                    <circle class="mac-ring-fill" cx="60" cy="60" r="52" [attr.stroke-dashoffset]="ringOffset()" />
+                  </svg>
+                  <div class="mac-ring-center">
+                    <div class="mac-ring-val"><app-count [value]="weeklySolved()" /><span class="mac-ring-goal">/{{ weeklyGoal }}</span></div>
+                    <div class="mac-ring-cap">Obiectiv</div>
+                  </div>
                 </div>
-                <div class="stat-val">
-                  @if (s.count !== null) {
-                    <app-count [value]="s.count" [decimals]="s.decimals" />{{ s.suffix }}
-                  } @else {
-                    {{ s.text }}
-                  }
+                <div class="mac-ring-info">
+                  <div class="mac-ring-title">Obiectiv Săptămânal</div>
+                  <div class="mac-ring-sub">{{ goalDone() ? 'Obiectiv complet atins' : 'subiecte rezolvate săptămâna asta' }}</div>
                 </div>
-                <div class="stat-desc">{{ s.desc }}</div>
               </div>
-            }
+            </div>
+
+            <div class="mac-divider"></div>
+
+            <div class="mac-stats-row">
+              @for (s of stats(); track s.label) {
+                <div class="mac-stat-item">
+                  <div class="mac-stat-label">
+                    <app-icon [name]="s.icon" [size]="14" />
+                    <span>{{ s.label }}</span>
+                  </div>
+                  <div class="mac-stat-val">
+                    @if (s.count !== null) {
+                      <app-count [value]="s.count" [decimals]="s.decimals" />{{ s.suffix }}
+                    } @else {
+                      {{ s.text }}
+                    }
+                  </div>
+                  <div class="mac-stat-desc">{{ s.desc }}</div>
+                </div>
+              }
+            </div>
           </div>
         </div>
 
@@ -303,56 +311,208 @@ const MONTHS_RO = [
       .cd-fill { height: 100%; min-width: 4px; border-radius: var(--r-pill); background: var(--label-3); }
       .cd-when { display: inline-flex; align-items: center; gap: 1px; font-size: 12.5px; font-weight: 600; color: var(--label-3); flex: none; }
 
-      /* ---------- DESKTOP: hero ---------- */
-      .hero { display: grid; grid-template-columns: 1.5fr 1fr; gap: var(--x5); align-items: center; padding: var(--x6); }
-      .hero-l { display: flex; flex-direction: column; align-items: flex-start; }
-      .date { letter-spacing: 1px; }
-      .hero-greet { margin: 6px 0 0; font-family: var(--font-display); font-size: clamp(26px, 3vw, 32px); font-weight: 800; letter-spacing: -0.9px; line-height: 1.08; }
-      .streak-chip { display: inline-flex; align-items: center; gap: 6px; margin-top: var(--x4); padding: 7px 13px; border-radius: var(--r-pill); background: var(--fill); color: var(--label-2); font-size: 13.5px; font-weight: 500; }
-      .streak-n { font-weight: 800; color: var(--label); font-variant-numeric: tabular-nums; }
-      .hero-cta { margin-top: var(--x5); }
-      .hero-r { display: flex; flex-direction: column; align-items: center; gap: var(--x3); }
-      .ring-wrap { position: relative; width: 148px; height: 148px; }
-      .ring { width: 148px; height: 148px; transform: rotate(-90deg); }
-      .ring-track { fill: none; stroke: var(--fill); stroke-width: 10; }
-      .ring-fill {
-        fill: none; stroke: var(--label-3); stroke-width: 10; stroke-linecap: round;
-        stroke-dasharray: ${RING_C};
-        transition: stroke-dashoffset 900ms var(--ease);
-      }
-      .ring-val { font-family: var(--font-display); font-size: 29px; font-weight: 800; letter-spacing: -1px; }
-      .ring-goal { color: var(--label-3); font-size: 18px; font-weight: 700; }
-      .hero-week-msg { font-size: 12.5px; color: var(--label-2); text-align: center; max-width: 150px; }
+      /* ---------- MATERII (comun, adaptiv) ---------- */
+      .subj-head { display: flex; align-items: flex-end; justify-content: space-between; margin: var(--x5) 4px var(--x3); }
+      .subj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--x3); }
+      .subj-card { display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: var(--x4); border: none; cursor: pointer; }
+      .subj-top { margin-bottom: 12px; }
+      .subj-name { font-size: 15px; font-weight: 600; color: var(--label); }
+      .subj-meta { font-size: 12px; color: var(--label-2); margin-top: 4px; }
+      .subj-sub { display: none; }
+      .subj-foot { display: none; }
+      .profile-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 500; color: var(--blue); background: transparent; border: none; padding: 0; cursor: pointer; }
 
-      /* ---------- DESKTOP: statistici compacte ---------- */
-      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--x3); }
-      .stat { padding: var(--x4) var(--x5); display: flex; flex-direction: column; }
-      .stat-head { display: flex; align-items: center; gap: 9px; margin-bottom: var(--x3); }
-      .stat-icon { width: 28px; height: 28px; border-radius: 9px; background: var(--fill); color: var(--label-2); display: inline-flex; align-items: center; justify-content: center; flex: none; }
-      .stat-title { font-size: 13.5px; font-weight: 600; letter-spacing: -0.2px; color: var(--label-2); }
-      .stat-val { font-family: var(--font-display); font-size: 28px; font-weight: 800; letter-spacing: -0.9px; line-height: 1; font-variant-numeric: tabular-nums; }
-      .stat-desc { margin-top: 4px; font-size: 12.5px; color: var(--label-3); }
-
-      /* ---------- MATERII ---------- */
-      .subj-head { display: flex; align-items: center; justify-content: space-between; margin: var(--x3) 0 var(--x3); padding: 0 2px; }
-      .profile-chip { display: inline-flex; align-items: center; gap: 3px; border: none; padding: 6px 11px; border-radius: var(--r-pill); background: var(--fill); color: var(--label-2); font-size: 12.5px; font-weight: 600; letter-spacing: -0.1px; }
-      .subj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--x3); }
-      .subj-card { display: flex; flex-direction: column; border: none; text-align: left; cursor: pointer; padding: var(--x4); background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-soft), inset 0 0 0 0.5px var(--hairline); }
-      .subj-top { display: flex; align-items: center; justify-content: space-between; }
-      .subj-name { margin-top: var(--x3); font-size: 15px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.2; }
-      .subj-sub { margin-top: 2px; font-size: 12.5px; color: var(--label-3); }
-      .subj-foot { display: none; align-items: center; justify-content: space-between; margin-top: var(--x3); }
-      .subj-meta { font-size: 12.5px; color: var(--label-3); }
-      .subj-cont { display: inline-flex; align-items: center; gap: 1px; font-size: 12.5px; font-weight: 600; color: var(--blue); }
-
-      @media (min-width: 620px) {
-        .subj-grid { grid-template-columns: repeat(3, 1fr); }
-      }
+      /* ---------- DESKTOP: macOS HIG Layout (min-width: 960px) ---------- */
       @media (min-width: 960px) {
-        .card { transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
-        .stat:hover, .subj-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-floating), inset 0 0 0 0.5px var(--hairline); }
-        .subj-sub { display: none; }
-        .subj-foot { display: flex; }
+        .mac-header {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          padding: 0 4px;
+        }
+        .mac-date {
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: -0.1px;
+          color: var(--label-2);
+          text-transform: capitalize;
+          margin-bottom: 2px;
+        }
+        .mac-title {
+          margin: 0;
+          font-family: var(--font-display);
+          font-size: 28px;
+          font-weight: 700;
+          letter-spacing: -0.6px;
+          color: var(--label);
+        }
+        .mac-header-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .mac-streak-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 6px;
+          background: var(--fill);
+          color: var(--label-2);
+          font-size: 13px;
+          font-weight: 500;
+        }
+        .mac-btn-primary {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          height: 32px;
+          padding: 0 14px;
+          border: none;
+          border-radius: 6px;
+          background: var(--label);
+          color: var(--surface);
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: -0.1px;
+          cursor: pointer;
+          transition: opacity 100ms ease-out;
+        }
+        .mac-btn-primary:hover { opacity: 0.92; }
+        .mac-btn-primary:active { opacity: 0.8; }
+
+        .mac-panel {
+          background: var(--surface);
+          border-radius: 12px;
+          border: 0.5px solid var(--hairline);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+        }
+        .mac-panel-hero {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .mac-ring-side {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+        }
+        .mac-ring-wrap {
+          position: relative;
+          width: 88px;
+          height: 88px;
+          flex: none;
+        }
+        .mac-ring {
+          width: 88px;
+          height: 88px;
+          transform: rotate(-90deg);
+        }
+        .mac-ring-track { fill: none; stroke: var(--fill); stroke-width: 9; }
+        .mac-ring-fill {
+          fill: none;
+          stroke: var(--label-3);
+          stroke-width: 9;
+          stroke-linecap: round;
+          stroke-dasharray: ${RING_C};
+          transition: stroke-dashoffset 900ms var(--ease);
+        }
+        .mac-ring-center {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .mac-ring-val {
+          font-family: var(--font-display);
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.5px;
+          color: var(--label);
+        }
+        .mac-ring-goal {
+          color: var(--label-3);
+          font-size: 13px;
+          font-weight: 500;
+        }
+        .mac-ring-cap {
+          font-size: 9px;
+          font-weight: 600;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          color: var(--label-3);
+        }
+        .mac-ring-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .mac-ring-title {
+          font-size: 15px;
+          font-weight: 600;
+          letter-spacing: -0.2px;
+          color: var(--label);
+        }
+        .mac-ring-sub {
+          font-size: 13px;
+          color: var(--label-2);
+        }
+
+        .mac-divider {
+          height: 0.5px;
+          background: var(--separator);
+          margin: 0 -24px;
+        }
+
+        .mac-stats-row {
+          display: grid;
+          grid-template-columns: repeat(6, 1fr);
+          gap: 16px;
+        }
+        .mac-stat-item {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .mac-stat-label {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--label-2);
+        }
+        .mac-stat-val {
+          font-family: var(--font-display);
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: -0.4px;
+          line-height: 1.1;
+          color: var(--label);
+          font-variant-numeric: tabular-nums;
+        }
+        .mac-stat-desc {
+          font-size: 11px;
+          color: var(--label-3);
+        }
+
+        .subj-head { margin: 12px 4px 16px; }
+        .subj-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .subj-card { padding: 20px; border-radius: 12px; border: 0.5px solid var(--hairline); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); background: var(--surface); transition: all 150ms ease; }
+        .subj-card:hover { border-color: rgba(0, 122, 255, 0.3); background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); transform: none; }
+        .subj-name { font-size: 17px; letter-spacing: -0.3px; }
+        .subj-meta { font-size: 13px; }
+        .subj-sub { display: block; font-size: 13px; color: var(--label-3); margin-top: 2px; }
+        .subj-foot { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 20px; }
+        .subj-cont { display: inline-flex; align-items: center; gap: 2px; font-size: 13px; font-weight: 500; color: var(--blue); opacity: 0; transform: translateX(-4px); transition: all 150ms ease; }
+        .subj-card:hover .subj-cont { opacity: 1; transform: translateX(0); }
       }
       @media (max-width: 620px) and (min-width: 960px) {
         /* niciodată — placeholder */

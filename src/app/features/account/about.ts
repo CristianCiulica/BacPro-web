@@ -72,7 +72,7 @@ export const PRIVACY_SECTIONS: PolicySection[] = [
     <app-glass-header title="Despre" />
     <div class="page-scroll">
       <div class="hero">
-        <img class="logo" src="assets/images/login_hero.png" alt="BacPro" />
+        <img class="logo" src="assets/images/login_hero_mono.jpg" alt="Logo" />
         <div class="brand">BacPro</div>
         <div class="t-subhead" style="margin-top: 4px">Versiunea 1.0.0</div>
       </div>

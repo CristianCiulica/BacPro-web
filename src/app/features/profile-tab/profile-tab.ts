@@ -13,56 +13,182 @@ import {
 @Component({
   selector: 'app-profile-tab',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardGroupComponent, CardRowComponent, GlassHeaderComponent, IconComponent],
+  imports: [GlassHeaderComponent, IconComponent],
   template: `
     <app-glass-header title="Profil" [showBack]="false" />
     <div class="page-scroll">
-      <div class="page-pad" style="padding-top: var(--x5)">
-        <div class="floating-card who">
-          <img class="pic" src="assets/images/login_hero.png" alt="" />
-          <div class="texts">
-            <div class="t-title name">{{ auth.displayName }}</div>
-            <div class="t-subhead email">{{ auth.currentUser?.email ?? 'Cont BacPro' }}</div>
+      <div class="journal-profile-wrap">
+        <!-- Content-First Journal/Fitness Profile Header (Non-card) -->
+        <header class="journal-header pressable" (click)="go('/user-profile')">
+          <div class="journal-avatar-wrap">
+            <app-icon name="person-fill" [size]="34" />
+          </div>
+          <div class="journal-header-info">
+            <h1 class="journal-name">{{ auth.displayName }}</h1>
+            <p class="journal-email">{{ auth.currentUser?.email ?? 'Cont BacPro' }}</p>
+          </div>
+          <app-icon name="chevron-right" [size]="14" class="journal-chevron" />
+        </header>
+
+        <!-- Grouped Settings List (Apple Journal / Books style) -->
+        <div class="journal-group-wrap">
+          <div class="journal-group-title">CONT & APLICAȚIE</div>
+          <div class="journal-list">
+            <div class="journal-row pressable" (click)="go('/user-profile')">
+              <span class="journal-icon"><app-icon name="person-circle" [size]="20" /></span>
+              <span class="journal-row-text">Profil utilizator</span>
+              <app-icon name="chevron-right" [size]="13" class="journal-chevron" />
+            </div>
+
+            <div class="journal-row pressable" (click)="go('/settings')">
+              <span class="journal-icon"><app-icon name="gear" [size]="20" /></span>
+              <span class="journal-row-text">Setări</span>
+              <app-icon name="chevron-right" [size]="13" class="journal-chevron" />
+            </div>
+
+            <div class="journal-row pressable" (click)="go('/about')">
+              <span class="journal-icon"><app-icon name="info-circle" [size]="20" /></span>
+              <span class="journal-row-text">Despre BacPro</span>
+              <app-icon name="chevron-right" [size]="13" class="journal-chevron" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Destructive Logout Section (Isolated, Monochrome + Red) -->
+        <div class="journal-group-wrap">
+          <div class="journal-list">
+            <div class="journal-row pressable" (click)="signOut()">
+              <span class="journal-icon danger"><app-icon name="logout" [size]="20" /></span>
+              <span class="journal-row-text danger">Deconectează-te</span>
+            </div>
           </div>
         </div>
       </div>
-
-      <app-card-group header="Cont">
-        <app-card-row title="Profil utilizator" (rowTap)="go('/user-profile')">
-          <span slot="leading" class="gicon"><app-icon name="person-circle" [size]="20" /></span>
-        </app-card-row>
-        <app-card-row title="Setări" (rowTap)="go('/settings')">
-          <span slot="leading" class="gicon"><app-icon name="gear" [size]="20" /></span>
-        </app-card-row>
-        <app-card-row title="Despre BacPro" (rowTap)="go('/about')">
-          <span slot="leading" class="gicon"><app-icon name="info-circle" [size]="20" /></span>
-        </app-card-row>
-        <app-card-row title="Deconectează-te" (rowTap)="signOut()">
-          <span slot="leading" class="gicon danger"><app-icon name="logout" [size]="20" /></span>
-        </app-card-row>
-      </app-card-group>
 
       <div style="height: var(--tab-clearance)"></div>
     </div>
   `,
   styles: [
     `
-      .who { display: flex; align-items: center; gap: var(--x4); }
-      .pic { width: 54px; height: 54px; object-fit: cover; border-radius: var(--r-md); flex: none; }
-      .texts { min-width: 0; }
-      .name { font-size: 18px; }
-      .email { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .gicon {
-        width: 40px; height: 40px;
-        border-radius: 13px;
-        background: var(--fill);
+      .journal-profile-wrap {
+        padding: 24px 20px 40px;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      /* Content-first Header (Journal / Books style) */
+      .journal-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 4px 0;
+        cursor: pointer;
+      }
+      .journal-avatar-wrap {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex: none;
+        background: var(--fill-secondary);
+        box-shadow: inset 0 0 0 0.5px var(--hairline);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: var(--label-2);
+      }
+      .journal-header-info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .journal-name {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--label);
+        line-height: 1.2;
+      }
+      .journal-email {
+        margin: 0;
+        font-size: 14px;
+        color: var(--label-2);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Clean Journal/Books Grouped List */
+      .journal-group-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .journal-group-title {
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.6px;
+        color: var(--label-3);
+        text-transform: uppercase;
+        margin-left: 8px;
+      }
+      .journal-list {
+        background: var(--surface);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: inset 0 0 0 0.5px var(--hairline);
+      }
+      .journal-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        min-height: 56px;
+        padding: 0 18px;
+        cursor: pointer;
+        background: transparent;
+        transition: background 120ms ease-out;
+      }
+      .journal-row:not(:last-child) {
+        border-bottom: 0.5px solid var(--separator);
+      }
+      .journal-row:active {
+        background: rgba(0, 0, 0, 0.04);
+      }
+      :host-context(.dark) .journal-row:active {
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      /* Graphite monochrome icons */
+      .journal-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        color: var(--label-2);
         flex: none;
       }
-      .gicon.danger { color: var(--red); }
+      .journal-icon.danger {
+        color: var(--red);
+      }
+      .journal-row-text {
+        flex: 1;
+        font-size: 16.5px;
+        font-weight: 400;
+        letter-spacing: -0.2px;
+        color: var(--label);
+      }
+      .journal-row-text.danger {
+        color: var(--red);
+        font-weight: 500;
+      }
+      .journal-chevron {
+        color: var(--label-3);
+        flex: none;
+      }
     `,
   ],
 })

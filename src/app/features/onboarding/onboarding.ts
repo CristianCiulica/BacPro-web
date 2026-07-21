@@ -50,7 +50,7 @@ import {
         @switch (page()) {
           @case (0) {
             <div class="pad welcome">
-              <img class="hero" src="assets/images/login_hero.png" alt="BacPro" />
+              <img class="hero" src="assets/images/login_hero_mono.jpg" alt="BacPro" />
               <h2 class="ptitle center">Bine ai venit în BacPro</h2>
               <p class="t-subhead center intro">Hai să te cunoaștem. Cum te numești?</p>
               <div class="app-input">

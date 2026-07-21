@@ -30,7 +30,7 @@ export function profileDefaults(user: AuthUserLike): UserProfileData {
       ? displayName
       : email !== '' ? email.split('@')[0] : 'Utilizator Bac Pro',
     email,
-    school: 'Adaugă școala ta',
+    school: 'Adaugă liceul tău',
     selectedProfile: 'Mate-Info',
     darkMode: false,
     haptics: true,
