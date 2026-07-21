@@ -197,13 +197,11 @@ const MONTHS_RO = [
               <button class="subj-card card" (click)="openSubject(s.title)">
                 <div class="subj-top">
                   <app-tinted-icon [icon]="s.icon" color="#8E98AC" [size]="42" />
-                  <span class="subj-pct">{{ s.pct }}%</span>
                 </div>
                 <div class="subj-name">{{ s.title }}</div>
                 <div class="subj-sub">2020 – 2025</div>
-                <div class="subj-bar"><div class="subj-fill" [style.width.%]="mounted() ? s.pct : 0"></div></div>
                 <div class="subj-foot">
-                  <span class="subj-meta">{{ s.count }} {{ s.count === 1 ? 'subiect' : 'subiecte' }}</span>
+                  <span class="subj-meta">{{ s.count }} {{ s.count === 1 ? 'subiect rezolvat' : 'subiecte rezolvate' }}</span>
                   <span class="subj-cont">Continuă <app-icon name="chevron-right" [size]="12" /></span>
                 </div>
               </button>
@@ -341,11 +339,8 @@ const MONTHS_RO = [
       .subj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--x3); }
       .subj-card { display: flex; flex-direction: column; border: none; text-align: left; cursor: pointer; padding: var(--x4); background: var(--surface); border-radius: var(--r-lg); box-shadow: var(--shadow-soft), inset 0 0 0 0.5px var(--hairline); }
       .subj-top { display: flex; align-items: center; justify-content: space-between; }
-      .subj-pct { display: none; font-family: var(--font-display); font-size: 16px; font-weight: 700; letter-spacing: -0.4px; color: var(--label); }
       .subj-name { margin-top: var(--x3); font-size: 15px; font-weight: 600; letter-spacing: -0.3px; line-height: 1.2; }
       .subj-sub { margin-top: 2px; font-size: 12.5px; color: var(--label-3); }
-      .subj-bar { display: none; margin-top: var(--x3); height: 6px; border-radius: var(--r-pill); background: var(--fill); overflow: hidden; }
-      .subj-fill { height: 100%; min-width: 6px; border-radius: var(--r-pill); background: var(--label-3); transition: width 900ms var(--ease); }
       .subj-foot { display: none; align-items: center; justify-content: space-between; margin-top: var(--x3); }
       .subj-meta { font-size: 12.5px; color: var(--label-3); }
       .subj-cont { display: inline-flex; align-items: center; gap: 1px; font-size: 12.5px; font-weight: 600; color: var(--blue); }
@@ -357,8 +352,6 @@ const MONTHS_RO = [
         .card { transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease); }
         .stat:hover, .subj-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-floating), inset 0 0 0 0.5px var(--hairline); }
         .subj-sub { display: none; }
-        .subj-pct { display: block; }
-        .subj-bar { display: block; }
         .subj-foot { display: flex; }
       }
       @media (max-width: 620px) and (min-width: 960px) {

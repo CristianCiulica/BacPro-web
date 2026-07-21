@@ -1,8 +1,8 @@
 /**
- * Ecranul de subiect — redesign „Cupertino" curat:
- * titlu mare fără card, timer monocrom, o singură culoare de accent (albastru),
- * autoevaluare pe slider liquid-glass gri. Timer 3h, Documente (Subiect/Barem),
- * Note personale, „Marchează ca rezolvat".
+ * Ecranul de subiect — redesign modern în stil Apple (iOS / macOS):
+ * Header curat cu pill-uri, card dedicat pentru documentele oficiale (Subiect & Barem)
+ * cu acțiuni directe de previzualizare fără să comuți tab-uri, timer de examen (3h)
+ * cu bară fină de progres, autoevaluare cu slider liquid-glass și note personale.
  */
 import {
   ChangeDetectionStrategy,
@@ -26,7 +26,8 @@ import {
   CardGroupComponent,
   DialogService,
   GlassHeaderComponent,
-  SegmentedComponent,
+  IconComponent,
+  PillBadgeComponent,
 } from '../../ui/ui';
 import { ExamFullscreenResult, PdfFullscreenComponent } from './pdf-fullscreen';
 import { findProfile, findSession, findSubject } from './subject-routing';
@@ -41,33 +42,114 @@ const BAC_DURATION = 10800; // 3 ore
     AppButtonComponent,
     CardGroupComponent,
     GlassHeaderComponent,
-    SegmentedComponent,
+    IconComponent,
+    PillBadgeComponent,
     PdfFullscreenComponent,
   ],
   template: `
     <app-glass-header title="" [large]="false" />
     <div class="page-scroll">
-      <!-- Titlu curat, fără card -->
+      <!-- Header Titlu stil Apple -->
       <div class="page-pad title-block">
+        <div class="pill-tags">
+          <app-pill-badge [label]="'Anul ' + year()" />
+          <app-pill-badge [label]="sessionName()" />
+        </div>
         <h1 class="stitle">{{ subjectName() }}</h1>
-        <div class="ssub">{{ year() }} · {{ sessionName() }}</div>
       </div>
 
-      <!-- Timer examen — monocrom, clean -->
+      <!-- Documente Oficiale: Carduri de acțiune directă Apple -->
       <div class="page-pad">
-        <div class="floating-card timer">
-          <div class="t-caption">Timp rămas</div>
-          <div class="big-time">{{ formattedTime() }}</div>
+        <div class="t-section section-header">Documente oficiale</div>
+        <div class="floating-card docs-card">
+          @if (pdfLoading()) {
+            <div class="docs-loading">
+              <span class="spinner"></span>
+              <span>Se caută documentele...</span>
+            </div>
+          } @else if (pdfError()) {
+            <div class="docs-empty">
+              <app-icon name="info-circle" [size]="20" />
+              <span>{{ pdfError() }}</span>
+            </div>
+          } @else {
+            <div class="doc-rows">
+              <!-- Subiect -->
+              <div class="doc-item">
+                <div class="doc-icon-box">
+                  <app-icon name="doc-text" [size]="22" />
+                </div>
+                <div class="doc-info">
+                  <div class="doc-name">Subiect Examen</div>
+                  <div class="doc-meta">Varianta oficială PDF</div>
+                </div>
+                <div class="doc-actions">
+                  @if (subjectPdfPath()) {
+                    <button class="apple-pill-btn pressable" (click)="openSubjectPdf()">
+                      <app-icon name="eye" [size]="15" />
+                      <span>Vezi PDF</span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="doc-divider"></div>
+
+              <!-- Barem -->
+              <div class="doc-item">
+                <div class="doc-icon-box">
+                  <app-icon name="doc-check" [size]="22" />
+                </div>
+                <div class="doc-info">
+                  <div class="doc-name">Barem de corectare</div>
+                  <div class="doc-meta">Schema de notare PDF</div>
+                </div>
+                <div class="doc-actions">
+                  @if (baremPdfPath()) {
+                    <button class="apple-pill-btn pressable" (click)="openBaremPdf()">
+                      <app-icon name="eye" [size]="15" />
+                      <span>Vezi Barem</span>
+                    </button>
+                  } @else {
+                    <span class="no-doc">Indisponibil</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Timer Examen 3 Ore -->
+      <div class="page-pad" style="margin-top: var(--x5)">
+        <div class="t-section section-header">Mod Examen (3 Ore)</div>
+        <div class="floating-card timer-card">
+          <div class="timer-top">
+            <div>
+              <div class="t-caption">Timp examen</div>
+              <div class="big-time">{{ formattedTime() }}</div>
+            </div>
+            @if (examStarted()) {
+              <span class="status-chip">În desfășurare</span>
+            }
+          </div>
+
           <div class="thinbar">
             <div class="thinbar-fill" [style.width.%]="timerProgress() * 100"></div>
           </div>
           <div class="tmeta">
-            <span>{{ consumedLabel() }}% consumat</span>
+            <span>{{ consumedLabel() }}% parcurs</span>
             <span>{{ minutesLeft() }} min rămase</span>
           </div>
+
           <div class="tactions">
             @if (!examStarted()) {
-              <app-button label="Start 3h" icon="play-fill" [height]="50" (pressed)="startTimer()" />
+              <app-button
+                label="Start Examen (3h)"
+                icon="play-fill"
+                [height]="50"
+                (pressed)="startTimer()"
+              />
             } @else {
               <app-button
                 label="Continuă"
@@ -88,49 +170,12 @@ const BAC_DURATION = 10800; // 3 ore
         </div>
       </div>
 
-      <!-- Documente oficiale -->
-      <div class="page-pad" style="margin-top: var(--x4)">
-        <div class="floating-card docs">
-          <div class="docs-head">
-            <div class="docs-titles">
-              <div class="t-headline">Documente oficiale</div>
-              <div class="t-caption docsub">{{ year() }} · {{ sessionName() }}</div>
-            </div>
-            <app-segmented
-              [options]="['Subiect', 'Barem']"
-              [index]="showAnswerKey() ? 1 : 0"
-              (indexChange)="showAnswerKey.set($event === 1)"
-            />
-          </div>
-          <div class="docs-divider"></div>
-          <div class="docs-body">
-            @if (pdfLoading()) {
-              <div class="docs-loading"><span class="spinner"></span></div>
-            } @else if (pdfError()) {
-              <div class="t-subhead center-text">{{ pdfError() }}</div>
-            } @else if (!activePdfPath()) {
-              <div class="t-subhead center-text">
-                Nu există document disponibil pentru această selecție.
-              </div>
-            } @else {
-              <app-button
-                label="Previzualizare"
-                icon="doc-viewfinder"
-                btnStyle="secondary"
-                [height]="48"
-                (pressed)="openPreview()"
-              />
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Autoevaluare — slider liquid glass -->
-      <div class="page-pad" style="margin-top: var(--x6)">
+      <!-- Autoevaluare -->
+      <div class="page-pad" style="margin-top: var(--x5)">
         <div class="t-section section-header">Nota estimată</div>
         <div class="glass-panel grade-glass">
           <div class="grade-row">
-            <span class="t-body">Autoevaluare</span>
+            <span class="t-body">Nota obținută</span>
             <span class="grade-badge">{{ estimatedGrade().toFixed(1) }}</span>
           </div>
           <input
@@ -145,9 +190,9 @@ const BAC_DURATION = 10800; // 3 ore
             [style.--track-color]="'rgba(142, 152, 172, 0.7)'"
           />
           <div class="scale">
-            <span class="t-caption">1</span>
-            <span class="t-caption">5</span>
-            <span class="t-caption">10</span>
+            <span class="t-caption">1.0</span>
+            <span class="t-caption">5.0</span>
+            <span class="t-caption">10.0</span>
           </div>
         </div>
       </div>
@@ -157,8 +202,8 @@ const BAC_DURATION = 10800; // 3 ore
         <div class="notes-cell">
           <div class="app-input multiline">
             <textarea
-              rows="5"
-              placeholder="Adaugă observații, formule de reținut, puncte slabe..."
+              rows="4"
+              placeholder="Scrie observații, formule importante, greșeli făcute..."
               [(ngModel)]="notes"
               (focus)="editingNotes.set(true)"
             ></textarea>
@@ -166,7 +211,7 @@ const BAC_DURATION = 10800; // 3 ore
           @if (editingNotes()) {
             <div class="notes-save">
               <app-button
-                label="Salvează"
+                label="Salvează notele"
                 btnStyle="secondary"
                 [expanded]="false"
                 [height]="40"
@@ -179,9 +224,9 @@ const BAC_DURATION = 10800; // 3 ore
       </app-card-group>
 
       <div class="page-pad finish">
-        <app-button label="Marchează ca rezolvat" icon="check" [height]="56" (pressed)="markSolved()" />
+        <app-button label="Marchează ca rezolvat" icon="check" [height]="54" (pressed)="markSolved()" />
       </div>
-      <div style="height: var(--x5)"></div>
+      <div style="height: var(--x6)"></div>
     </div>
 
     @if (fullscreen(); as fs) {
@@ -197,25 +242,67 @@ const BAC_DURATION = 10800; // 3 ore
   `,
   styles: [
     `
-      /* Titlu — fără card, curat */
-      .title-block { padding-top: var(--x4); padding-bottom: var(--x5); }
+      /* Header titlu Apple */
+      .title-block { padding-top: var(--x2); padding-bottom: var(--x4); }
+      .pill-tags { display: flex; gap: var(--x2); margin-bottom: var(--x2); }
       .stitle {
         margin: 0;
         font-family: var(--font-display);
-        font-size: clamp(30px, 9vw, 40px);
+        font-size: clamp(28px, 8vw, 36px);
         font-weight: 800;
-        letter-spacing: -1px;
-        line-height: 1.05;
+        letter-spacing: -0.8px;
+        line-height: 1.1;
         color: var(--label);
       }
-      .ssub { margin-top: 6px; font-size: 15px; color: var(--label-2); }
 
-      /* Timer — monocrom */
-      .timer { text-align: left; }
+      /* Card Documente Oficiale Apple */
+      .docs-card { padding: 0; overflow: hidden; }
+      .docs-loading {
+        display: flex; align-items: center; justify-content: center; gap: var(--x3);
+        padding: var(--x6); color: var(--label-2); font-size: 14px;
+      }
+      .docs-empty {
+        display: flex; align-items: center; justify-content: center; gap: var(--x2);
+        padding: var(--x6); color: var(--label-2); font-size: 14px; text-align: center;
+      }
+      .doc-rows { display: flex; flex-direction: column; }
+      .doc-item {
+        display: flex; align-items: center; gap: var(--x3);
+        padding: var(--x4);
+      }
+      .doc-icon-box {
+        width: 42px; height: 42px; border-radius: 12px;
+        background: var(--fill); color: var(--label);
+        display: flex; align-items: center; justify-content: center;
+        flex: none;
+      }
+      .doc-info { flex: 1; min-width: 0; }
+      .doc-name { font-weight: 600; font-size: 15px; letter-spacing: -0.2px; color: var(--label); }
+      .doc-meta { font-size: 12.5px; color: var(--label-2); margin-top: 2px; }
+      .doc-actions { display: flex; align-items: center; gap: var(--x2); flex: none; }
+      .doc-divider { height: 0.5px; background: var(--separator); margin: 0 var(--x4); }
+      .no-doc { font-size: 12.5px; color: var(--label-3); font-weight: 500; }
+
+      .apple-pill-btn {
+        display: inline-flex; align-items: center; gap: 6px;
+        border: none; padding: 8px 14px; border-radius: var(--r-pill);
+        font-size: 13px; font-weight: 600; cursor: pointer;
+        background: var(--fill); color: var(--blue);
+        transition: background 160ms var(--ease), opacity 140ms ease-out;
+      }
+      .apple-pill-btn:hover { background: var(--fill-secondary); }
+
+      /* Timer Examen */
+      .timer-card { text-align: left; }
+      .timer-top { display: flex; align-items: flex-start; justify-content: space-between; }
+      .status-chip {
+        font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+        padding: 4px 10px; border-radius: var(--r-pill); background: rgba(52, 199, 89, 0.14); color: var(--green);
+      }
       .big-time {
         margin-top: 2px;
         font-family: var(--font-display);
-        font-size: 40px;
+        font-size: 38px;
         font-weight: 800;
         letter-spacing: -1px;
         line-height: 1;
@@ -245,23 +332,7 @@ const BAC_DURATION = 10800; // 3 ore
       }
       .tactions { display: flex; gap: var(--x3); margin-top: var(--x4); }
 
-      /* Documente */
-      .docs { padding: 0; }
-      .docs-head {
-        display: flex;
-        align-items: center;
-        gap: var(--x3);
-        padding: var(--x4) var(--x4) var(--x3);
-        flex-wrap: wrap;
-      }
-      .docs-titles { flex: 1; min-width: 140px; }
-      .docsub { margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .docs-divider { height: 0.5px; background: var(--separator); }
-      .docs-body { padding: var(--x4); }
-      .docs-loading { height: 44px; display: flex; align-items: center; justify-content: center; }
-      .center-text { text-align: center; }
-
-      /* Autoevaluare — liquid glass gri, sheen discret (nu metalic) */
+      /* Autoevaluare Liquid Glass */
       .grade-glass {
         padding: var(--x5);
         background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0) 60%);
@@ -270,7 +341,6 @@ const BAC_DURATION = 10800; // 3 ore
       :host-context(.dark) .grade-glass {
         background-image: linear-gradient(150deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 60%);
       }
-      /* thumb alb lucios, ca de sticlă */
       .grade-slider::-webkit-slider-thumb {
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.2);
       }
@@ -285,11 +355,10 @@ const BAC_DURATION = 10800; // 3 ore
         background: rgba(120, 130, 150, 0.16);
         -webkit-backdrop-filter: blur(8px);
         backdrop-filter: blur(8px);
-        padding: 5px 16px;
+        padding: 4px 14px;
         border-radius: var(--r-md);
         border: 0.5px solid var(--glass-stroke);
       }
-      /* track puțin mai gros; culoarea gri vine inline pe --track-color */
       .grade-slider { --track-h: 7px; }
       .scale { display: flex; justify-content: space-between; margin-top: var(--x2); }
 
@@ -314,7 +383,6 @@ export class SubjectDetailComponent implements OnInit {
   readonly timerFinished = signal(false);
   readonly examStarted = signal(false);
   readonly estimatedGrade = signal(7.0);
-  readonly showAnswerKey = signal(false);
   readonly editingNotes = signal(false);
   readonly pdfLoading = signal(true);
   readonly pdfError = signal<string | null>(null);
@@ -356,16 +424,12 @@ export class SubjectDetailComponent implements OnInit {
     this.pdfAssets.set(assets);
     this.pdfLoading.set(false);
     this.pdfError.set(
-      assets === null ? 'Nu am găsit document asociat pentru această selecție.' : null,
+      assets === null ? 'Nu am găsit documente asociate pentru această selecție.' : null,
     );
   }
 
-  readonly activePdfPath = computed(() => {
-    const assets = this.pdfAssets();
-    if (!assets) return null;
-    const path = this.showAnswerKey() ? assets.answerPdfAsset : assets.subjectPdfAsset;
-    return path.trim() === '' ? null : path;
-  });
+  readonly subjectPdfPath = computed(() => this.pdfAssets()?.subjectPdfAsset?.trim() || null);
+  readonly baremPdfPath = computed(() => this.pdfAssets()?.answerPdfAsset?.trim() || null);
 
   readonly formattedTime = computed(() => {
     const s = this.secondsLeft();
@@ -382,8 +446,8 @@ export class SubjectDetailComponent implements OnInit {
   }
 
   async startTimer(): Promise<void> {
-    const pdfPath = this.pdfAssets()?.subjectPdfAsset;
-    if (!pdfPath || pdfPath.trim() === '') {
+    const pdfPath = this.subjectPdfPath();
+    if (!pdfPath) {
       await this.dialogs.show(
         'Subiect indisponibil',
         'Nu am găsit acest subiect pentru selecția curentă. Încearcă alt an sau altă materie.',
@@ -396,8 +460,14 @@ export class SubjectDetailComponent implements OnInit {
     this.fullscreen.set({ src: pdfPath, examMode: true });
   }
 
-  openPreview(): void {
-    const path = this.activePdfPath();
+  openSubjectPdf(): void {
+    const path = this.subjectPdfPath();
+    if (!path) return;
+    this.fullscreen.set({ src: path, examMode: false });
+  }
+
+  openBaremPdf(): void {
+    const path = this.baremPdfPath();
     if (!path) return;
     this.fullscreen.set({ src: path, examMode: false });
   }

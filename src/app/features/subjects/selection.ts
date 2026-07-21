@@ -25,7 +25,6 @@ import { findProfile, findSubject, slug } from './subject-routing';
     CardRowComponent,
     GlassHeaderComponent,
     SubjectTitleCardComponent,
-    TintedIconComponent,
   ],
   template: `
     <app-glass-header title="" [large]="false" />
@@ -35,9 +34,7 @@ import { findProfile, findSubject, slug } from './subject-routing';
       </div>
       <app-card-group header="Alege anul" footer="Subiectele sunt disponibile din 2020.">
         @for (year of years; track year) {
-          <app-card-row [title]="year" (rowTap)="openYear(year)">
-            <app-tinted-icon slot="leading" icon="calendar" color="#5856D6" />
-          </app-card-row>
+          <app-card-row [title]="year" (rowTap)="openYear(year)" />
         }
       </app-card-group>
       <div style="height: var(--x10)"></div>
@@ -55,7 +52,7 @@ export class YearSelectionComponent {
     findSubject(this.profile(), this.params()['subject'] as string),
   );
   readonly subjectTitle = computed(() => this.subject()?.title ?? 'Subiect');
-  readonly color = computed(() => this.subject()?.accentColor ?? '#5856D6');
+  readonly color = computed(() => this.subject()?.accentColor ?? '#8E98AC');
 
   openYear(year: string): void {
     this.router.navigate([
@@ -72,7 +69,6 @@ export class YearSelectionComponent {
     CardRowComponent,
     GlassHeaderComponent,
     SubjectTitleCardComponent,
-    TintedIconComponent,
   ],
   template: `
     <app-glass-header title="" [large]="false" />
@@ -90,9 +86,7 @@ export class YearSelectionComponent {
             [title]="session.name"
             [subtitle]="session.desc"
             (rowTap)="openSession(session.name)"
-          >
-            <app-tinted-icon slot="leading" [icon]="session.icon" [color]="session.color" />
-          </app-card-row>
+          />
         }
       </app-card-group>
       <div style="height: var(--x10)"></div>
@@ -111,7 +105,7 @@ export class SessionSelectionComponent {
   );
   readonly subjectTitle = computed(() => this.subject()?.title ?? 'Subiect');
   readonly year = computed(() => this.params()['year'] as string);
-  readonly color = computed(() => this.subject()?.accentColor ?? '#5856D6');
+  readonly color = computed(() => this.subject()?.accentColor ?? '#8E98AC');
 
   openSession(sessionName: string): void {
     this.router.navigate([

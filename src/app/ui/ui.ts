@@ -937,5 +937,5 @@ export class DialogHostComponent {
 export class SubjectTitleCardComponent {
   readonly title = input.required<string>();
   readonly subtitle = input<string | null>(null);
-  readonly accentColor = input('#5856D6');
+  readonly accentColor = input('#8E98AC');
 }

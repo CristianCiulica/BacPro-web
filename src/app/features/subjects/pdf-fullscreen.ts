@@ -1,20 +1,22 @@
 /**
- * Viewer PDF fullscreen — port al PdfFullscreenScreen din main_shell.dart.
+ * Viewer PDF fullscreen — randare cu PDF.js (canvas per pagină).
  *
- * PDF-urile (e3.ro / edupedu / profesorjitaruionel) se servesc `application/pdf`
- * inline, fără Content-Disposition și fără X-Frame-Options — deci le randăm
- * direct într-un iframe nativ, folosind viewerul PDF al browserului. Acesta
- * derulează toate paginile pe desktop și Android (spre deosebire de viewerul
- * Google Docs, care nu derula bine pe mobil). iOS Safari afișează doar prima
- * pagină în iframe — de aceea butonul „Deschide în tab nou" e mereu la îndemână
- * (viewerul nativ Safari derulează tot documentul).
+ * Problema: iframe-urile PDF nu permit scroll pe iOS Safari (doar prima
+ * pagină e vizibilă). Soluția: PDF.js randează fiecare pagină într-un
+ * `<canvas>` plasat într-un container scrollabil nativ — funcționează
+ * pe toate platformele (iOS Safari, Android Chrome, desktop).
+ *
+ * Pinch-to-zoom: containerul are `touch-action: pan-x pan-y pinch-zoom`
+ * și permite zoom nativ prin dublu-tap sau pinch.
  *
  * În modul examen, bara frosted cu timerul (tick de 1s) e suprapusă peste
  * document; la ieșire întoarce { secondsLeft, isFinished }.
  */
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   EventEmitter,
   OnDestroy,
   OnInit,
@@ -23,11 +25,16 @@ import {
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+import * as pdfjsLib from 'pdfjs-dist';
 
 import { AppSettingsService } from '../../core/services/app-settings.service';
 import { IconComponent } from '../../ui/ui';
+
+// Worker-ul a fost copiat în /public la build → disponibil la root.
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.mjs';
 
 export interface ExamFullscreenResult {
   secondsLeft: number;
@@ -50,7 +57,7 @@ export interface ExamFullscreenResult {
         </a>
       </header>
 
-      <div class="viewer">
+      <div class="viewer" #viewerContainer>
         @if (failed()) {
           <div class="error">
             <div class="err-icon"><app-icon name="wifi-off" [size]="30" /></div>
@@ -65,7 +72,9 @@ export interface ExamFullscreenResult {
             </div>
           </div>
         } @else {
-          <iframe [src]="safeSrc()" title="Document PDF" (load)="onFrameLoad()"></iframe>
+          <div class="pages" #pagesContainer>
+            <!-- Paginile canvas se inserează dinamic din cod -->
+          </div>
           @if (loading()) {
             <div class="loading">
               <span class="spinner light"></span>
@@ -110,6 +119,7 @@ export interface ExamFullscreenResult {
         padding: env(safe-area-inset-top, 0px) var(--x2) 0;
         background: #000;
         color: #fff;
+        flex: none;
       }
       .tbtn {
         width: 44px; height: 44px;
@@ -130,13 +140,32 @@ export interface ExamFullscreenResult {
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .viewer { position: relative; flex: 1; min-height: 0; }
-      iframe {
+      .viewer {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .pages {
         width: 100%;
         height: 100%;
-        border: none;
-        background: #525659;
+        overflow-y: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        touch-action: pan-x pan-y pinch-zoom;
+        background: #525659;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 0;
+      }
+      .pages canvas {
+        display: block;
+        max-width: 100%;
+        height: auto;
+        /* Umbre subtile pe fiecare pagină pentru separare vizuală */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
       }
       .loading {
         position: absolute;
@@ -215,7 +244,7 @@ export interface ExamFullscreenResult {
     `,
   ],
 })
-export class PdfFullscreenComponent implements OnInit, OnDestroy {
+export class PdfFullscreenComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly src = input.required<string>();
   readonly title = input.required<string>();
   readonly examMode = input(false);
@@ -224,30 +253,28 @@ export class PdfFullscreenComponent implements OnInit, OnDestroy {
   @Output() closed = new EventEmitter<ExamFullscreenResult>();
 
   private settings = inject(AppSettingsService);
-  private sanitizer = inject(DomSanitizer);
+
+  readonly pagesContainer = viewChild<ElementRef<HTMLDivElement>>('pagesContainer');
 
   readonly secondsLeft = signal(10800);
   readonly loading = signal(true);
   readonly failed = signal(false);
-  readonly safeSrc = signal<SafeResourceUrl>('');
 
   private timer: ReturnType<typeof setInterval> | null = null;
   private loadWatchdog: ReturnType<typeof setTimeout> | null = null;
+  private pdfDoc: pdfjsLib.PDFDocumentProxy | null = null;
+  private renderAborted = false;
 
   ngOnInit(): void {
     this.secondsLeft.set(this.initialSecondsLeft());
-    // #view=FitH deschide documentul potrivit pe lățime, cu scroll pe verticală
-    const url = this.src().trim();
-    const withView = url.includes('#') ? url : `${url}#view=FitH`;
-    this.safeSrc.set(this.sanitizer.bypassSecurityTrustResourceUrl(withView));
 
-    // dacă iframe-ul nu declanșează `load` în 12s, arătăm fallback-ul
+    // Watchdog: dacă PDF.js nu reușește în 15s, arătăm fallback-ul
     this.loadWatchdog = setTimeout(() => {
       if (this.loading()) {
         this.loading.set(false);
         this.failed.set(true);
       }
-    }, 12000);
+    }, 15000);
 
     if (this.examMode()) {
       this.timer = setInterval(() => {
@@ -261,17 +288,100 @@ export class PdfFullscreenComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    if (this.timer) clearInterval(this.timer);
-    if (this.loadWatchdog) clearTimeout(this.loadWatchdog);
+  ngAfterViewInit(): void {
+    this.loadAndRenderPdf();
   }
 
-  onFrameLoad(): void {
-    this.loading.set(false);
+  ngOnDestroy(): void {
+    this.renderAborted = true;
+    if (this.timer) clearInterval(this.timer);
+    if (this.loadWatchdog) clearTimeout(this.loadWatchdog);
+    if (this.pdfDoc) {
+      this.pdfDoc.destroy();
+      this.pdfDoc = null;
+    }
+  }
+
+  private async loadAndRenderPdf(): Promise<void> {
+    const url = this.src().trim();
+    if (!url) {
+      this.loading.set(false);
+      this.failed.set(true);
+      return;
+    }
+
+    try {
+      const task = pdfjsLib.getDocument({
+        url,
+        // Fetch cu CORS — majoritatea PDF-urilor bac sunt servite cu CORS permisiv
+        withCredentials: false,
+      });
+      this.pdfDoc = await task.promise;
+    } catch {
+      this.loading.set(false);
+      this.failed.set(true);
+      return;
+    }
+
     if (this.loadWatchdog) {
       clearTimeout(this.loadWatchdog);
       this.loadWatchdog = null;
     }
+
+    if (this.renderAborted || !this.pdfDoc) return;
+
+    const container = this.pagesContainer()?.nativeElement;
+    if (!container) {
+      this.loading.set(false);
+      this.failed.set(true);
+      return;
+    }
+
+    const numPages = this.pdfDoc.numPages;
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    // Lățimea containerului — canvas-urile se potrivesc pe lățime
+    const containerWidth = container.clientWidth;
+
+    for (let i = 1; i <= numPages; i++) {
+      if (this.renderAborted) return;
+
+      try {
+        const page = await this.pdfDoc.getPage(i);
+        const unscaledViewport = page.getViewport({ scale: 1 });
+
+        // Scalăm PDF-ul ca să se potrivească pe lățimea containerului
+        const cssScale = containerWidth / unscaledViewport.width;
+        const renderScale = cssScale * devicePixelRatio;
+        const viewport = page.getViewport({ scale: renderScale });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        // Dimensiuni CSS — fit pe lățime
+        canvas.style.width = `${containerWidth}px`;
+        canvas.style.height = `${(containerWidth / unscaledViewport.width) * unscaledViewport.height}px`;
+
+        container.appendChild(canvas);
+
+        const ctx = canvas.getContext('2d')!;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        // Ascundem spinner-ul după prima pagină
+        if (i === 1) {
+          this.loading.set(false);
+        }
+      } catch {
+        // Dacă o pagină individuală eșuează, continuăm cu următoarele
+        if (i === 1) {
+          this.loading.set(false);
+          this.failed.set(true);
+          return;
+        }
+      }
+    }
+
+    // Asigurăm că loading e false dacă nu a fost deja
+    this.loading.set(false);
   }
 
   readonly formattedTime = computed(() => {

@@ -39,7 +39,7 @@ import {
         </div>
 
         <div class="floating-card info-card">
-          <app-tinted-icon icon="timer" color="#5856D6" />
+          <app-tinted-icon icon="timer" color="#8E98AC" />
           <span class="t-headline">
             {{
               daysLeft() <= 0
