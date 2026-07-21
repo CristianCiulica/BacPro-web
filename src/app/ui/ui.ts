@@ -10,8 +10,10 @@ import {
   HostListener,
   Injectable,
   Input,
+  OnDestroy,
   Output,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -231,6 +233,56 @@ export class AppButtonComponent {
     if (!this.enabled()) return;
     this.settings.selection();
     this.pressed.emit();
+  }
+}
+
+/* ----------------------------------------------------------------- Count -- */
+/** Număr animat „care crește" către valoarea țintă (ease-out ~600ms). */
+@Component({
+  selector: 'app-count',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `{{ display() }}`,
+  styles: [':host { font-variant-numeric: tabular-nums; }'],
+})
+export class CountComponent implements OnDestroy {
+  readonly value = input.required<number>();
+  readonly decimals = input(0);
+  readonly display = signal('0');
+  private raf = 0;
+  private current = 0;
+
+  constructor() {
+    effect(() => this.tween(this.value()));
+  }
+
+  private tween(target: number): void {
+    cancelAnimationFrame(this.raf);
+    if (typeof performance === 'undefined' || typeof requestAnimationFrame === 'undefined') {
+      this.current = target;
+      this.display.set(target.toFixed(this.decimals()));
+      return;
+    }
+    const start = this.current;
+    const t0 = performance.now();
+    const dur = 600;
+    const d = this.decimals();
+    const step = (now: number) => {
+      const p = Math.min((now - t0) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      this.current = start + (target - start) * eased;
+      this.display.set(this.current.toFixed(d));
+      if (p < 1) {
+        this.raf = requestAnimationFrame(step);
+      } else {
+        this.current = target;
+        this.display.set(target.toFixed(d));
+      }
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+
+  ngOnDestroy(): void {
+    cancelAnimationFrame(this.raf);
   }
 }
 
@@ -499,7 +551,7 @@ export class CardRowComponent {
     `
       .bar {
         position: fixed;
-        top: 0; left: 0; right: 0;
+        top: 0; left: var(--sidebar-w, 0); right: 0;
         z-index: 40;
         display: flex;
         align-items: center;

@@ -1,11 +1,14 @@
 /**
  * Viewer PDF fullscreen — port al PdfFullscreenScreen din main_shell.dart.
  *
- * PDF-urile remote (e3.ro / profesorjitaruionel.com) nu trimit headere CORS,
- * deci nu pot fi randate cu pdf.js; iar viewerul nativ din iframe nu există
- * pe Android Chrome. Randăm prin viewerul Google Docs (embedded), care însă
- * răspunde uneori gol la prima cerere — de aceea: spinner cât se încarcă,
- * reîncercare automată la interval (max 4 încercări) și reîncercare manuală.
+ * PDF-urile (e3.ro / edupedu / profesorjitaruionel) se servesc `application/pdf`
+ * inline, fără Content-Disposition și fără X-Frame-Options — deci le randăm
+ * direct într-un iframe nativ, folosind viewerul PDF al browserului. Acesta
+ * derulează toate paginile pe desktop și Android (spre deosebire de viewerul
+ * Google Docs, care nu derula bine pe mobil). iOS Safari afișează doar prima
+ * pagină în iframe — de aceea butonul „Deschide în tab nou" e mereu la îndemână
+ * (viewerul nativ Safari derulează tot documentul).
+ *
  * În modul examen, bara frosted cu timerul (tick de 1s) e suprapusă peste
  * document; la ieșire întoarce { secondsLeft, isFinished }.
  */
@@ -24,20 +27,17 @@ import {
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 import { AppSettingsService } from '../../core/services/app-settings.service';
-import { AppButtonComponent, IconComponent } from '../../ui/ui';
+import { IconComponent } from '../../ui/ui';
 
 export interface ExamFullscreenResult {
   secondsLeft: number;
   isFinished: boolean;
 }
 
-const RETRY_INTERVAL_MS = 5000;
-const MAX_ATTEMPTS = 4;
-
 @Component({
   selector: 'app-pdf-fullscreen',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppButtonComponent, IconComponent],
+  imports: [IconComponent],
   template: `
     <div class="screen">
       <header class="topbar">
@@ -60,29 +60,16 @@ const MAX_ATTEMPTS = 4;
               indisponibil momentan.
             </div>
             <div class="err-actions">
-              <app-button
-                label="Reîncearcă"
-                icon="arrow-swap"
-                [expanded]="false"
-                class="inline-host"
-                (pressed)="retryManual()"
-              />
+              <a class="err-open" [href]="src()" target="_blank" rel="noopener">Deschide în tab nou</a>
               <button class="err-back" (click)="close()">Înapoi</button>
             </div>
           </div>
         } @else {
-          <iframe
-            [src]="safeSrc()"
-            title="Document PDF"
-            (load)="onFrameLoad()"
-          ></iframe>
+          <iframe [src]="safeSrc()" title="Document PDF" (load)="onFrameLoad()"></iframe>
           @if (loading()) {
             <div class="loading">
               <span class="spinner light"></span>
               <span class="ltext">Se încarcă subiectul...</span>
-              @if (attempt() > 1) {
-                <span class="lretry">Reîncercare {{ attempt() }}/{{ maxAttempts }}</span>
-              }
             </div>
           }
         }
@@ -132,6 +119,7 @@ const MAX_ATTEMPTS = 4;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
         flex: none;
+        text-decoration: none;
       }
       .ttitle {
         flex: 1;
@@ -142,8 +130,14 @@ const MAX_ATTEMPTS = 4;
         overflow: hidden;
         text-overflow: ellipsis;
       }
-      .viewer { position: relative; flex: 1; }
-      iframe { width: 100%; height: 100%; border: none; background: #2a2a2e; }
+      .viewer { position: relative; flex: 1; min-height: 0; }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #525659;
+        -webkit-overflow-scrolling: touch;
+      }
       .loading {
         position: absolute;
         inset: 0;
@@ -154,15 +148,15 @@ const MAX_ATTEMPTS = 4;
         gap: var(--x3);
         background: #1c1c1f;
         color: rgba(255, 255, 255, 0.75);
+        pointer-events: none;
       }
       .ltext { font-size: 14px; }
-      .lretry { font-size: 12px; color: rgba(255, 255, 255, 0.45); }
       .timerbar {
         position: absolute;
-        left: var(--x4); right: var(--x4); top: var(--x3);
+        left: var(--x4); right: var(--x4); bottom: calc(var(--x4) + env(safe-area-inset-bottom, 0px));
         padding: var(--x3) var(--x4);
         border-radius: var(--r-md);
-        background: rgba(0, 0, 0, 0.55);
+        background: rgba(0, 0, 0, 0.62);
         -webkit-backdrop-filter: blur(20px);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.15);
@@ -198,13 +192,23 @@ const MAX_ATTEMPTS = 4;
       .err-title { margin-top: var(--x4); font-family: var(--font-display); font-size: 18px; font-weight: 600; }
       .err-msg { margin-top: var(--x2); color: rgba(255, 255, 255, 0.6); font-size: 14px; line-height: 1.4; max-width: 320px; }
       .err-actions { margin-top: var(--x6); display: flex; align-items: center; gap: var(--x3); }
+      .err-open {
+        border: none;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 600;
+        font-size: 15px;
+        padding: 14px var(--x5);
+        border-radius: var(--r-md);
+        text-decoration: none;
+      }
       .err-back {
         border: none;
         background: rgba(255, 255, 255, 0.12);
         color: #fff;
         font-weight: 600;
-        font-size: 16px;
-        padding: 14px var(--x6);
+        font-size: 15px;
+        padding: 14px var(--x5);
         border-radius: var(--r-md);
         cursor: pointer;
       }
@@ -222,22 +226,28 @@ export class PdfFullscreenComponent implements OnInit, OnDestroy {
   private settings = inject(AppSettingsService);
   private sanitizer = inject(DomSanitizer);
 
-  readonly maxAttempts = MAX_ATTEMPTS;
   readonly secondsLeft = signal(10800);
   readonly loading = signal(true);
   readonly failed = signal(false);
-  readonly attempt = signal(1);
   readonly safeSrc = signal<SafeResourceUrl>('');
 
   private timer: ReturnType<typeof setInterval> | null = null;
-  private retryTimer: ReturnType<typeof setTimeout> | null = null;
-  private isRemote = false;
+  private loadWatchdog: ReturnType<typeof setTimeout> | null = null;
 
   ngOnInit(): void {
     this.secondsLeft.set(this.initialSecondsLeft());
-    const raw = this.src().trim();
-    this.isRemote = raw.startsWith('http://') || raw.startsWith('https://');
-    this.loadFrame();
+    // #view=FitH deschide documentul potrivit pe lățime, cu scroll pe verticală
+    const url = this.src().trim();
+    const withView = url.includes('#') ? url : `${url}#view=FitH`;
+    this.safeSrc.set(this.sanitizer.bypassSecurityTrustResourceUrl(withView));
+
+    // dacă iframe-ul nu declanșează `load` în 12s, arătăm fallback-ul
+    this.loadWatchdog = setTimeout(() => {
+      if (this.loading()) {
+        this.loading.set(false);
+        this.failed.set(true);
+      }
+    }, 12000);
 
     if (this.examMode()) {
       this.timer = setInterval(() => {
@@ -253,52 +263,14 @@ export class PdfFullscreenComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.timer) clearInterval(this.timer);
-    this.clearRetry();
-  }
-
-  /** Setează sursa iframe-ului și armează reîncercarea automată. */
-  private loadFrame(): void {
-    const raw = this.src().trim();
-    // parametru de cache-bust ca fiecare încercare să fie o cerere nouă
-    const bust = this.attempt() > 1 ? `&retry=${this.attempt()}` : '';
-    const viewerUrl = this.isRemote
-      ? 'https://docs.google.com/viewer?embedded=true&url=' + encodeURIComponent(raw) + bust
-      : raw;
-    this.loading.set(true);
-    this.safeSrc.set(this.sanitizer.bypassSecurityTrustResourceUrl(viewerUrl));
-
-    this.clearRetry();
-    if (this.isRemote) {
-      this.retryTimer = setTimeout(() => this.onLoadTimeout(), RETRY_INTERVAL_MS);
-    }
-  }
-
-  private onLoadTimeout(): void {
-    if (!this.loading()) return;
-    if (this.attempt() >= MAX_ATTEMPTS) {
-      this.loading.set(false);
-      this.failed.set(true);
-      return;
-    }
-    this.attempt.set(this.attempt() + 1);
-    this.loadFrame();
+    if (this.loadWatchdog) clearTimeout(this.loadWatchdog);
   }
 
   onFrameLoad(): void {
     this.loading.set(false);
-    this.clearRetry();
-  }
-
-  retryManual(): void {
-    this.failed.set(false);
-    this.attempt.set(1);
-    this.loadFrame();
-  }
-
-  private clearRetry(): void {
-    if (this.retryTimer) {
-      clearTimeout(this.retryTimer);
-      this.retryTimer = null;
+    if (this.loadWatchdog) {
+      clearTimeout(this.loadWatchdog);
+      this.loadWatchdog = null;
     }
   }
 

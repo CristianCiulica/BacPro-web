@@ -213,10 +213,23 @@ const MATH: Record<string, YearMap> = {
 };
 
 const BLOG = 'https://profesorjitaruionel.com/wp-content/uploads';
+const EDU = 'https://cdn.edupedu.ro/wp-content/uploads';
 
 const b = (folder: string, varName: string, barName: string): ExamDoc => ({
   subject: `${BLOG}/${folder}/${varName}`,
   barem: `${BLOG}/${folder}/${barName}`,
+});
+
+/** Fișier găzduit pe CDN-ul oficial edupedu.ro (arhiva ministerului). */
+const ed = (folder: string, varName: string, barName: string): ExamDoc => ({
+  subject: `${EDU}/${folder}/${varName}`,
+  barem: `${EDU}/${folder}/${barName}`,
+});
+
+/** Subiect și barem de pe gazde diferite (URL-uri complete). */
+const mix = (subjectUrl: string, baremUrl: string): ExamDoc => ({
+  subject: subjectUrl,
+  barem: baremUrl,
 });
 
 const ROMANA: Record<string, Record<string, ExamDoc>> = {
@@ -224,11 +237,17 @@ const ROMANA: Record<string, Record<string, ExamDoc>> = {
     '2025': b('2025/06', 'E_a_romana_real_tehn_2025_var_07.pdf', 'E_a_romana_real_tehn_2025_bar_07.pdf'),
     '2024': b('2024/07', 'E_a_romana_real_tehn_2024_var_02.pdf', 'E_a_romana_real_tehn_2024_bar_02.pdf'),
     '2023': b('2023/06', 'E_a_romana_real_tehn_2023_var_06.pdf', 'E_a_romana_real_tehn_2023_bar_06.pdf'),
+    '2022': ed('2022/06', 'E_a_romana_real_tehn_2022_var_06.pdf', 'E_a_romana_real_tehn_2022_bar_06.pdf'),
+    '2021': b('2021/06', 'E_a_romana_real_tehn_2021_var_04.pdf', 'E_a_romana_real_tehn_2021_bar_04.pdf'),
+    '2020': ed('2020/06', 'E_a_romana_real_tehn_2020_var_05.pdf', 'E_a_romana_real_tehn_2020_bar_05.pdf'),
   },
   uman: {
     '2025': b('2025/06', 'E_a_romana_uman_ped_2025_var_07.pdf', 'E_a_romana_uman_ped_2025_bar_07.pdf'),
     '2024': b('2024/07', 'E_a_romana_uman_ped_2024_var_02.pdf', 'E_a_romana_uman_ped_2024_bar_02.pdf'),
     '2023': b('2023/06', 'E_a_romana_uman_ped_2023_var_06.pdf', 'E_a_romana_uman_ped_2023_bar_06.pdf'),
+    '2022': ed('2022/06', 'E_a_romana_uman_ped_2022_var_06.pdf', 'E_a_romana_uman_ped_2022_bar_06.pdf'),
+    '2021': b('2021/06', 'E_a_romana_uman_ped_2021_var_04.pdf', 'E_a_romana_uman_ped_2021_bar_04.pdf'),
+    '2020': ed('2020/06', 'E_a_romana_uman_2020_var_05.pdf', 'E_a_romana_uman_2020_bar_05.pdf'),
   },
 };
 
@@ -237,57 +256,90 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2025': b('2025/06', 'E_c_istorie_2025_var_01_LRO.pdf', 'E_c_istorie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_c_istorie_2024_var_10_LRO.pdf', 'E_c_istorie_2024_bar_10_LRO.pdf'),
     '2023': b('2023/06', 'E_c_istorie_2023_var_01_LRO.pdf', 'E_c_istorie_2023_bar_01_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_c_istorie_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_c_istorie_2022_bar_01_LRO.pdf`),
+    '2021': b('2021/06', 'E_c_istorie_2021_var_02_LRO.pdf', 'E_c_istorie_2021_bar_02_LRO.pdf'),
+    '2020': ed('2020/06', 'E_c_istorie_2020_var_06_LRO.pdf', 'E_c_istorie_2020_bar_06_LRO.pdf'),
   },
   biologie: {
     '2025': b('2025/06', 'E_d_bio_veg_anim_2025_var_01_LRO.pdf', 'E_d_bio_veg_anim_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_bio_veg_anim_2024_var_03_LRO.pdf', 'E_d_bio_veg_anim_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_bio_veg_anim_2023_var_05_LRO.pdf', 'E_d_bio_veg_anim_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_bio_veg_anim_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_bio_veg_anim_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_bio_veg_anim_2021_var_01_LRO.pdf', 'E_d_bio_veg_anim_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_bio_veg_anim_2020_var_06_LRO.pdf', 'E_d_bio_veg_anim_2020_bar_06_LRO.pdf'),
   },
   chimie: {
     '2025': b('2025/06', 'E_d_chimie_organica_2025_var_01_LRO.pdf', 'E_d_chimie_organica_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_chimie_organica_2024_var_03_LRO.pdf', 'E_d_chimie_organica_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_chimie_organica_2023_var_05_LRO.pdf', 'E_d_chimie_organica_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_chimie_organica_2022_var_01_LRO-1.pdf`, `${EDU}/2022/06/E_d_chimie_organica_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_chimie_organica_2021_var_01_LRO.pdf', 'E_d_chimie_organica_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_chimie_organica_2020_var_06_LRO.pdf', 'E_d_chimie_organica_2020_bar_06_LRO.pdf'),
   },
   fizica: {
     '2025': b('2025/06', 'E_d_fizica_tehnologic_2025_var_01_LRO.pdf', 'E_d_fizica_tehnologic_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_fizica_teoretic-vocational_2024_var_03.pdf', 'E_d_fizica_teoretic-vocational_2024_bar_03.pdf'),
     '2023': b('2023/06', 'E_d_fizica_teoretic_vocational_2023_var_05_LRO.pdf', 'E_d_fizica_teoretic_vocational_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_fizica_teoretic_vocational_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_fizica_teoretic_vocational_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_fizica_teoretic_vocational_2021_var_01_LRO.pdf', 'E_d_fizica_teoretic_vocational_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_fizica_teoretic_vocational_2020_var_06_LRO.pdf', 'E_d_fizica_teoretic_vocational_2020_bar_06_LRO.pdf'),
   },
   informatica: {
     '2025': b('2025/06', 'E_d_Informatica_2025_sp_MI_C_var_01_LRO.pdf', 'E_d_informatica_2025_sp_MI_bar_01_LRO.pdf'),
     // Baremul 2024 nu e publicat separat pe mirror — refolosim subiectul.
     '2024': b('2024/07', 'E_d_Informatica_2024_sp_MI_C_var_03_LRO.pdf', 'E_d_Informatica_2024_sp_MI_C_var_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_Informatica_2023_sp_MI_C_var_05_LRO.pdf', 'E_d_Informatica_2023_sp_MI_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_informatica_2022_sp_MI_C_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_Informatica_2022_sp_MI_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_Informatica_2021_sp_MI_C_var_01_LRO.pdf', 'E_d_Informatica_2021_sp_MI_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_Informatica_2020_sp_MI_C_var_06_LRO.pdf', 'E_d_Informatica_2020_sp_MI_bar_06.pdf'),
   },
   geografie: {
     '2025': b('2025/06', 'E_d_geografie_2025_var_01_LRO.pdf', 'E_d_geografie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_geografie_2024_var_03_LRO.pdf', 'E_d_geografie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_geografie_2023_var_05_LRO.pdf', 'E_d_geografie_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_geografie_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_geografie_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_geografie_2021_var_01_LRO.pdf', 'E_d_geografie_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_geografie_2020_var_06_LRO.pdf', 'E_d_geografie_2020_bar_06_LRO.pdf'),
   },
   logica: {
     '2025': b('2025/06', 'E_d_logica_2025_var_01_LRO.pdf', 'E_d_logica_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_logica_2024_var_03_LRO.pdf', 'E_d_logica_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_logica_2023_var_05_LRO.pdf', 'E_d_logica_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_logica_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_logica_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_logica_2021_var_01_LRO.pdf', 'E_d_logica_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_logica_2020_var_06_LRO.pdf', 'E_d_logica_2020_bar_06_LRO.pdf'),
   },
   psihologie: {
     '2025': b('2025/06', 'E_d_psihologie_2025_var_01_LRO.pdf', 'E_d_psihologie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_psihologie_2024_var_03_LRO.pdf', 'E_d_psihologie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_psihologie_2023_var_05_LRO.pdf', 'E_d_psihologie_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_psihologie_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_psihologie_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_psihologie_2021_var_01_LRO.pdf', 'E_d_psihologie_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_psihologie_2020_var_06_LRO.pdf', 'E_d_psihologie_2020_bar_06_LRO.pdf'),
   },
   economie: {
     '2025': b('2025/06', 'E_d_economie_2025_var_01_LRO.pdf', 'E_d_economie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_economie_2024_var_03_LRO.pdf', 'E_d_economie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_economie_2023_var_05_LRO.pdf', 'E_d_economie_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_economie_2022_var_01_LRO-1.pdf`, `${EDU}/2022/06/E_d_economie_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_economie_2021_var_01_LRO.pdf', 'E_d_economie_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_economie_2020_var_06_LRO.pdf', 'E_d_economie_2020_bar_06_LRO.pdf'),
   },
   sociologie: {
     '2025': b('2025/06', 'E_d_sociologie_2025_var_01_LRO.pdf', 'E_d_sociologie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_sociologie_2024_var_03_LRO.pdf', 'E_d_sociologie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_sociologie_2023_var_05_LRO.pdf', 'E_d_sociologie_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_sociologie_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_sociologie_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_sociologie_2021_var_01_LRO.pdf', 'E_d_sociologie_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_sociologie_2020_var_06_LRO.pdf', 'E_d_sociologie_2020_bar_06_LRO.pdf'),
   },
   filosofie: {
     '2025': b('2025/06', 'E_d_filosofie_2025_var_01_LRO.pdf', 'E_d_filosofie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_filosofie_2024_var_03_LRO.pdf', 'E_d_filosofie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_filosofie_2023_var_05_LRO.pdf', 'E_d_filosofie_2023_bar_05_LRO.pdf'),
+    '2022': mix(`${BLOG}/2022/06/E_d_filosofie_2022_var_01_LRO.pdf`, `${EDU}/2022/06/E_d_filosofie_2022_bar_01_LRO.pdf`),
+    '2021': ed('2021/06', 'E_d_filosofie_2021_var_01_LRO.pdf', 'E_d_filosofie_2021_bar_01_LRO.pdf'),
+    '2020': ed('2020/06', 'E_d_filosofie_2020_var_06_LRO.pdf', 'E_d_filosofie_2020_bar_06_LRO.pdf'),
   },
 };
 

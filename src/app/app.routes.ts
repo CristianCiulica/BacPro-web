@@ -5,7 +5,7 @@ import { authGuard, guestGuard, onboardedGuard } from './core/guards';
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
 
-  // Auth
+  // Auth (în afara shell-ului)
   {
     path: 'login',
     canActivate: [guestGuard],
@@ -22,7 +22,7 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/auth').then((m) => m.RegisterComponent),
   },
 
-  // Onboarding
+  // Onboarding (în afara shell-ului)
   {
     path: 'onboarding',
     canActivate: [authGuard],
@@ -30,7 +30,8 @@ export const routes: Routes = [
       import('./features/onboarding/onboarding').then((m) => m.OnboardingComponent),
   },
 
-  // Shell cu taburi
+  // Shell — pe desktop dă sidebar persistent tuturor ecranelor autentificate;
+  // pe mobil rămâne tab bar (pe taburi) + drawer (de pe Acasă).
   {
     path: '',
     canActivate: [authGuard, onboardedGuard],
@@ -49,87 +50,69 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/profile-tab/profile-tab').then((m) => m.ProfileTabComponent),
       },
+
+      // Fluxul de subiecte
+      {
+        path: 'subject/:profile/:subject',
+        loadComponent: () =>
+          import('./features/subjects/selection').then((m) => m.YearSelectionComponent),
+      },
+      {
+        path: 'subject/:profile/:subject/:year',
+        loadComponent: () =>
+          import('./features/subjects/selection').then((m) => m.SessionSelectionComponent),
+      },
+      {
+        path: 'subject/:profile/:subject/:year/:session',
+        loadComponent: () =>
+          import('./features/subjects/subject-detail').then((m) => m.SubjectDetailComponent),
+      },
+
+      // Countdown
+      {
+        path: 'exam-date',
+        loadComponent: () =>
+          import('./features/countdown/set-exam-date').then((m) => m.SetExamDateComponent),
+      },
+
+      // Ecrane de cont
+      {
+        path: 'user-profile',
+        loadComponent: () =>
+          import('./features/account/user-profile').then((m) => m.UserProfileComponent),
+      },
+      {
+        path: 'history',
+        loadComponent: () => import('./features/account/history').then((m) => m.HistoryComponent),
+      },
+      {
+        path: 'settings',
+        loadComponent: () => import('./features/account/settings').then((m) => m.SettingsComponent),
+      },
+      {
+        path: 'about',
+        loadComponent: () => import('./features/account/about').then((m) => m.AboutComponent),
+      },
+      {
+        path: 'terms',
+        data: { kind: 'terms' },
+        loadComponent: () => import('./features/account/about').then((m) => m.PolicyComponent),
+      },
+      {
+        path: 'privacy',
+        data: { kind: 'privacy' },
+        loadComponent: () => import('./features/account/about').then((m) => m.PolicyComponent),
+      },
+      {
+        path: 'rating',
+        loadComponent: () => import('./features/account/rating').then((m) => m.RatingComponent),
+      },
+      {
+        path: 'dev-messages',
+        loadComponent: () =>
+          import('./features/account/dev-messages').then((m) => m.DevMessagesComponent),
+      },
     ],
-  },
-
-  // Fluxul de subiecte
-  {
-    path: 'subject/:profile/:subject',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/subjects/selection').then((m) => m.YearSelectionComponent),
-  },
-  {
-    path: 'subject/:profile/:subject/:year',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/subjects/selection').then((m) => m.SessionSelectionComponent),
-  },
-  {
-    path: 'subject/:profile/:subject/:year/:session',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/subjects/subject-detail').then((m) => m.SubjectDetailComponent),
-  },
-
-  // Countdown
-  {
-    path: 'exam-date',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/countdown/set-exam-date').then((m) => m.SetExamDateComponent),
-  },
-
-  // Ecrane de cont
-  {
-    path: 'user-profile',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/account/user-profile').then((m) => m.UserProfileComponent),
-  },
-  {
-    path: 'progress',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/account/progress').then((m) => m.ProgressScreenComponent),
-  },
-  {
-    path: 'history',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/account/history').then((m) => m.HistoryComponent),
-  },
-  {
-    path: 'settings',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/account/settings').then((m) => m.SettingsComponent),
-  },
-  {
-    path: 'about',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/account/about').then((m) => m.AboutComponent),
-  },
-  {
-    path: 'terms',
-    canActivate: [authGuard],
-    data: { kind: 'terms' },
-    loadComponent: () => import('./features/account/about').then((m) => m.PolicyComponent),
-  },
-  {
-    path: 'privacy',
-    canActivate: [authGuard],
-    data: { kind: 'privacy' },
-    loadComponent: () => import('./features/account/about').then((m) => m.PolicyComponent),
-  },
-  {
-    path: 'rating',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/account/rating').then((m) => m.RatingComponent),
-  },
-  {
-    path: 'dev-messages',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/account/dev-messages').then((m) => m.DevMessagesComponent),
   },
 
   { path: '**', redirectTo: 'home' },

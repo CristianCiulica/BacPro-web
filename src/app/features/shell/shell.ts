@@ -31,6 +31,48 @@ interface DrawerEntry {
   imports: [RouterOutlet, IconComponent],
   template: `
     <div class="shell">
+      <!-- Sidebar persistent (doar desktop) -->
+      <aside class="sidebar">
+        <div class="sb-brand">
+          <img class="sb-logo" src="assets/images/app_icon.png" alt="" />
+          <span class="sb-name">BacPro</span>
+        </div>
+        <nav class="sb-nav">
+          <div class="sb-group">
+            @for (tab of tabs; track tab.route) {
+              <button class="sb-item" [class.active]="isActive(tab.route)" (click)="go(tab.route)">
+                <app-icon [name]="tab.icon" [size]="20" />
+                <span>{{ tab.label }}</span>
+              </button>
+            }
+          </div>
+          @for (group of sidebarGroups; track group.label) {
+            <div class="sb-label">{{ group.label }}</div>
+            <div class="sb-group">
+              @for (entry of group.items; track entry.label) {
+                <button class="sb-item" [class.active]="isActive(entry.route)" (click)="go(entry.route)">
+                  <app-icon [name]="entry.icon" [size]="20" />
+                  <span>{{ entry.label }}</span>
+                </button>
+              }
+            </div>
+          }
+        </nav>
+        <div class="sb-foot">
+          <div class="sb-user">
+            <div class="sb-avatar"><app-icon name="person-fill" [size]="20" /></div>
+            <div class="sb-uinfo">
+              <div class="sb-uname">{{ auth.displayName }}</div>
+              <div class="sb-uemail">{{ auth.currentUser?.email ?? profile().selectedProfile }}</div>
+            </div>
+          </div>
+          <button class="sb-item danger" (click)="signOut()">
+            <app-icon name="logout" [size]="20" />
+            <span>Deconectează-te</span>
+          </button>
+        </div>
+      </aside>
+
       <router-outlet />
 
       <!-- Meniul lateral (doar pe Acasă) -->
@@ -93,7 +135,8 @@ interface DrawerEntry {
         </aside>
       }
 
-      <!-- Tab bar glass flotant -->
+      <!-- Tab bar glass flotant (mobil, doar pe taburi) -->
+      @if (isTabRoute()) {
       <nav class="tabbar-wrap">
         <div class="tabbar">
           @for (tab of tabs; track tab.route) {
@@ -108,11 +151,89 @@ interface DrawerEntry {
           }
         </div>
       </nav>
+      }
     </div>
   `,
   styles: [
     `
-      .shell { min-height: 100dvh; }
+      .shell { min-height: 100dvh; padding-left: var(--sidebar-w); }
+
+      /* ---------------- Sidebar desktop (ascuns pe mobil) ---------------- */
+      .sidebar { display: none; }
+      @media (min-width: 960px) {
+        .sidebar {
+          display: flex;
+          flex-direction: column;
+          position: fixed;
+          top: 14px; left: 14px; bottom: 14px;
+          width: calc(var(--sidebar-w) - 26px);
+          z-index: 70;
+          padding: var(--x5) var(--x3) var(--x4);
+          border-radius: 26px;
+          background: rgba(255, 255, 255, 0.62);
+          -webkit-backdrop-filter: blur(40px) saturate(1.8);
+          backdrop-filter: blur(40px) saturate(1.8);
+          border: 1px solid rgba(255, 255, 255, 0.7);
+          box-shadow: var(--shadow-floating);
+        }
+      }
+      .sb-brand { display: flex; align-items: center; gap: 11px; padding: 0 var(--x3) var(--x6); }
+      .sb-logo { width: 34px; height: 34px; border-radius: 9px; box-shadow: var(--shadow-soft); }
+      .sb-name { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.4px; }
+      .sb-nav { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+      .sb-group { display: flex; flex-direction: column; gap: 2px; }
+      .sb-label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        color: var(--label-3);
+        padding: 0 var(--x3);
+        margin: var(--x5) 0 var(--x2);
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        padding: 9px var(--x3);
+        border: none;
+        background: transparent;
+        border-radius: 11px;
+        color: var(--label-2);
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: -0.2px;
+        text-align: left;
+        cursor: pointer;
+        transition: background 160ms var(--ease), color 160ms var(--ease), transform 160ms var(--spring);
+      }
+      .sb-item span { flex: 1; }
+      .sb-item:hover { background: var(--fill); color: var(--label); }
+      .sb-item:active { transform: scale(0.98); }
+      .sb-item.active { background: rgba(0, 122, 255, 0.12); color: var(--blue); font-weight: 600; }
+      .sb-item.active app-icon { color: var(--blue); }
+      .sb-item.danger { color: var(--red); }
+      .sb-item.danger:hover { background: rgba(255, 59, 48, 0.1); }
+      .sb-foot { padding-top: var(--x3); margin-top: var(--x2); border-top: 1px solid var(--separator); }
+      .sb-user { display: flex; align-items: center; gap: 10px; padding: 0 var(--x3) var(--x3); }
+      .sb-avatar {
+        width: 38px; height: 38px;
+        flex: none;
+        border-radius: 11px;
+        background: var(--fill);
+        color: var(--label-2);
+        display: flex; align-items: center; justify-content: center;
+      }
+      .sb-uinfo { min-width: 0; }
+      .sb-uname { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sb-uemail { font-size: 12px; color: var(--label-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      :host-context(.dark) .sidebar {
+        background: rgba(16, 19, 27, 0.72);
+        border-right-color: rgba(255, 255, 255, 0.07);
+      }
+      :host-context(.dark) .sb-item:hover { background: rgba(255, 255, 255, 0.06); }
 
       .scrim {
         position: fixed;
@@ -271,6 +392,13 @@ interface DrawerEntry {
         background: rgba(255, 255, 255, 0.12);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
       }
+
+      /* Pe desktop, chrome-ul de mobil dispare — sidebar-ul îl înlocuiește */
+      @media (min-width: 960px) {
+        .tabbar-wrap,
+        .scrim,
+        .drawer { display: none !important; }
+      }
     `,
   ],
 })
@@ -292,7 +420,6 @@ export class ShellComponent {
   readonly sections: DrawerEntry[][] = [
     [
       { icon: 'person-circle', label: 'Profil utilizator', route: '/user-profile' },
-      { icon: 'chart-square', label: 'Progres & Statistici', route: '/progress' },
       { icon: 'clock', label: 'Istoric sesiuni', route: '/history' },
     ],
     [
@@ -303,6 +430,26 @@ export class ShellComponent {
       { icon: 'star', label: 'Evaluează aplicația', route: '/rating' },
       { icon: 'info-circle', label: 'Despre BacPro', route: '/about' },
     ],
+  ];
+
+  /** Grupare pentru sidebar-ul de desktop (cu etichete de secțiune). */
+  readonly sidebarGroups: { label: string; items: DrawerEntry[] }[] = [
+    {
+      label: 'Cont',
+      items: [
+        { icon: 'person-circle', label: 'Profil utilizator', route: '/user-profile' },
+        { icon: 'clock', label: 'Istoric sesiuni', route: '/history' },
+        { icon: 'chat', label: 'Mesaje dezvoltator', route: '/dev-messages' },
+      ],
+    },
+    {
+      label: 'Aplicație',
+      items: [
+        { icon: 'gear', label: 'Setări', route: '/settings' },
+        { icon: 'star', label: 'Evaluează', route: '/rating' },
+        { icon: 'info-circle', label: 'Despre BacPro', route: '/about' },
+      ],
+    },
   ];
 
   private profileSig = computed(() => {
@@ -334,6 +481,12 @@ export class ShellComponent {
   }
 
   readonly onHome = computed(() => this.currentUrl().startsWith('/home'));
+
+  /** Rutele care afișează tab bar-ul pe mobil (restul sunt vederi „push"). */
+  readonly isTabRoute = computed(() => {
+    const u = this.currentUrl().split('?')[0].split('#')[0];
+    return u === '/home' || u === '/random' || u === '/profile' || u === '/';
+  });
 
   isActive(route: string): boolean {
     return this.currentUrl().startsWith(route);
