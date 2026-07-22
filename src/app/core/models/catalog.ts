@@ -135,7 +135,7 @@ export const examSessions: ExamSession[] = [
   { name: 'Model Oficial', desc: 'Modelul de subiect publicat de minister', icon: 'doc-on-doc', color: C.gray },
 ];
 
-export const examYears = ['2025', '2024', '2023', '2022', '2021', '2020'];
+export const examYears = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
 
 export function profileByName(name: string | null | undefined): Profile {
   if (!name) return appProfiles[0];

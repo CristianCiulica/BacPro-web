@@ -37,10 +37,21 @@ const short = (folder: string, stem: string): ExamDoc => ({
   barem: `${BASE}/${folder}/${stem}barem.pdf`,
 });
 
+/** Un an cu un singur subiect publicat (ex. 2026 = doar sesiunea iunie):
+ *  aceeași lucrare e servită pentru orice sesiune aleasă. */
+const allSessions = (doc: ExamDoc): Record<string, ExamDoc> => ({
+  iunie: doc,
+  august: doc,
+  speciala: doc,
+  simulare: doc,
+  model: doc,
+});
+
 type YearMap = Record<string, Record<string, ExamDoc>>;
 
 const MATH: Record<string, YearMap> = {
   'mate-info': {
+    '2026': allSessions(std('2026/07', 'mate-info', '2026', '03')),
     '2025': {
       iunie: std('2025/06', 'mate-info', '2025', '01'),
       august: std('2025/08', 'mate-info', '2025', '09'),
@@ -83,6 +94,7 @@ const MATH: Record<string, YearMap> = {
     },
   },
   'st-nat': {
+    '2026': allSessions(std('2026/07', 'st-nat', '2026', '03')),
     '2025': {
       iunie: std('2025/06', 'st-nat', '2025', '01'),
       august: std('2025/08', 'st-nat', '2025', '09'),
@@ -125,6 +137,7 @@ const MATH: Record<string, YearMap> = {
     },
   },
   tehnologic: {
+    '2026': allSessions(std('2026/07', 'tehnologic', '2026', '03')),
     '2025': {
       iunie: std('2025/06', 'tehnologic', '2025', '01'),
       august: std('2025/08', 'tehnologic', '2025', '09'),
@@ -234,6 +247,7 @@ const mix = (subjectUrl: string, baremUrl: string): ExamDoc => ({
 
 const ROMANA: Record<string, Record<string, ExamDoc>> = {
   real: {
+    '2026': b('2026/06', 'E_a_romana_real_tehn_2026_var_06.pdf', 'E_a_romana_real_tehn_2026_bar_06.pdf'),
     '2025': b('2025/06', 'E_a_romana_real_tehn_2025_var_07.pdf', 'E_a_romana_real_tehn_2025_bar_07.pdf'),
     '2024': b('2024/07', 'E_a_romana_real_tehn_2024_var_02.pdf', 'E_a_romana_real_tehn_2024_bar_02.pdf'),
     '2023': b('2023/06', 'E_a_romana_real_tehn_2023_var_06.pdf', 'E_a_romana_real_tehn_2023_bar_06.pdf'),
@@ -242,6 +256,7 @@ const ROMANA: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_a_romana_real_tehn_2020_var_05.pdf', 'E_a_romana_real_tehn_2020_bar_05.pdf'),
   },
   uman: {
+    '2026': b('2026/06', 'E_a_romana_uman_ped_2026_var_06.pdf', 'E_a_romana_uman_ped_2026_bar_06.pdf'),
     '2025': b('2025/06', 'E_a_romana_uman_ped_2025_var_07.pdf', 'E_a_romana_uman_ped_2025_bar_07.pdf'),
     '2024': b('2024/07', 'E_a_romana_uman_ped_2024_var_02.pdf', 'E_a_romana_uman_ped_2024_bar_02.pdf'),
     '2023': b('2023/06', 'E_a_romana_uman_ped_2023_var_06.pdf', 'E_a_romana_uman_ped_2023_bar_06.pdf'),
@@ -253,6 +268,7 @@ const ROMANA: Record<string, Record<string, ExamDoc>> = {
 
 const OTHER: Record<string, Record<string, ExamDoc>> = {
   istorie: {
+    '2026': b('2026/06', 'E_c_istorie_2026_var_03_LRO.pdf', 'E_c_istorie_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_c_istorie_2025_var_01_LRO.pdf', 'E_c_istorie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_c_istorie_2024_var_10_LRO.pdf', 'E_c_istorie_2024_bar_10_LRO.pdf'),
     '2023': b('2023/06', 'E_c_istorie_2023_var_01_LRO.pdf', 'E_c_istorie_2023_bar_01_LRO.pdf'),
@@ -261,6 +277,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_c_istorie_2020_var_06_LRO.pdf', 'E_c_istorie_2020_bar_06_LRO.pdf'),
   },
   biologie: {
+    '2026': b('2026/06', 'E_d_bio_veg_anim_2026_var_03_LRO.pdf', 'E_d_bio_veg_anim_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_bio_veg_anim_2025_var_01_LRO.pdf', 'E_d_bio_veg_anim_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_bio_veg_anim_2024_var_03_LRO.pdf', 'E_d_bio_veg_anim_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_bio_veg_anim_2023_var_05_LRO.pdf', 'E_d_bio_veg_anim_2023_bar_05_LRO.pdf'),
@@ -269,6 +286,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_bio_veg_anim_2020_var_06_LRO.pdf', 'E_d_bio_veg_anim_2020_bar_06_LRO.pdf'),
   },
   chimie: {
+    '2026': b('2026/06', 'E_d_chimie_organica_2026_var_03_LRO.pdf', 'E_d_chimie_organica_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_chimie_organica_2025_var_01_LRO.pdf', 'E_d_chimie_organica_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_chimie_organica_2024_var_03_LRO.pdf', 'E_d_chimie_organica_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_chimie_organica_2023_var_05_LRO.pdf', 'E_d_chimie_organica_2023_bar_05_LRO.pdf'),
@@ -277,6 +295,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_chimie_organica_2020_var_06_LRO.pdf', 'E_d_chimie_organica_2020_bar_06_LRO.pdf'),
   },
   fizica: {
+    '2026': b('2026/06', 'E_d_fizica_tehnologic_2026_var_03_LRO.pdf', 'E_d_fizica_tehnologic_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_fizica_tehnologic_2025_var_01_LRO.pdf', 'E_d_fizica_tehnologic_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_fizica_teoretic-vocational_2024_var_03.pdf', 'E_d_fizica_teoretic-vocational_2024_bar_03.pdf'),
     '2023': b('2023/06', 'E_d_fizica_teoretic_vocational_2023_var_05_LRO.pdf', 'E_d_fizica_teoretic_vocational_2023_bar_05_LRO.pdf'),
@@ -285,6 +304,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_fizica_teoretic_vocational_2020_var_06_LRO.pdf', 'E_d_fizica_teoretic_vocational_2020_bar_06_LRO.pdf'),
   },
   informatica: {
+    '2026': b('2026/06', 'E_d_Informatica_2026_sp_MI_C_var_03_LRO.pdf', 'E_d_Informatica_2026_sp_MI_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_Informatica_2025_sp_MI_C_var_01_LRO.pdf', 'E_d_informatica_2025_sp_MI_bar_01_LRO.pdf'),
     // Baremul 2024 nu e publicat separat pe mirror — refolosim subiectul.
     '2024': b('2024/07', 'E_d_Informatica_2024_sp_MI_C_var_03_LRO.pdf', 'E_d_Informatica_2024_sp_MI_C_var_03_LRO.pdf'),
@@ -294,6 +314,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_Informatica_2020_sp_MI_C_var_06_LRO.pdf', 'E_d_Informatica_2020_sp_MI_bar_06.pdf'),
   },
   geografie: {
+    '2026': b('2026/06', 'E_d_geografie_2026_var_03_LRO.pdf', 'E_d_geografie_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_geografie_2025_var_01_LRO.pdf', 'E_d_geografie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_geografie_2024_var_03_LRO.pdf', 'E_d_geografie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_geografie_2023_var_05_LRO.pdf', 'E_d_geografie_2023_bar_05_LRO.pdf'),
@@ -302,6 +323,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_geografie_2020_var_06_LRO.pdf', 'E_d_geografie_2020_bar_06_LRO.pdf'),
   },
   logica: {
+    '2026': b('2026/06', 'E_d_logica_2026_var_03_LRO.pdf', 'E_d_logica_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_logica_2025_var_01_LRO.pdf', 'E_d_logica_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_logica_2024_var_03_LRO.pdf', 'E_d_logica_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_logica_2023_var_05_LRO.pdf', 'E_d_logica_2023_bar_05_LRO.pdf'),
@@ -310,6 +332,8 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_logica_2020_var_06_LRO.pdf', 'E_d_logica_2020_bar_06_LRO.pdf'),
   },
   psihologie: {
+    // Baremul 2026 nu e publicat separat pe mirror — refolosim subiectul.
+    '2026': b('2026/06', 'E_d_psihologie_2026_var_03_LRO.pdf', 'E_d_psihologie_2026_var_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_psihologie_2025_var_01_LRO.pdf', 'E_d_psihologie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_psihologie_2024_var_03_LRO.pdf', 'E_d_psihologie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_psihologie_2023_var_05_LRO.pdf', 'E_d_psihologie_2023_bar_05_LRO.pdf'),
@@ -318,6 +342,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_psihologie_2020_var_06_LRO.pdf', 'E_d_psihologie_2020_bar_06_LRO.pdf'),
   },
   economie: {
+    '2026': b('2026/06', 'E_d_economie_2026_var_03_LRO.pdf', 'E_d_economie_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_economie_2025_var_01_LRO.pdf', 'E_d_economie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_economie_2024_var_03_LRO.pdf', 'E_d_economie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_economie_2023_var_05_LRO.pdf', 'E_d_economie_2023_bar_05_LRO.pdf'),
@@ -326,6 +351,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_economie_2020_var_06_LRO.pdf', 'E_d_economie_2020_bar_06_LRO.pdf'),
   },
   sociologie: {
+    '2026': b('2026/06', 'E_d_sociologie_2026_var_03_LRO.pdf', 'E_d_sociologie_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_sociologie_2025_var_01_LRO.pdf', 'E_d_sociologie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_sociologie_2024_var_03_LRO.pdf', 'E_d_sociologie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_sociologie_2023_var_05_LRO.pdf', 'E_d_sociologie_2023_bar_05_LRO.pdf'),
@@ -334,6 +360,7 @@ const OTHER: Record<string, Record<string, ExamDoc>> = {
     '2020': ed('2020/06', 'E_d_sociologie_2020_var_06_LRO.pdf', 'E_d_sociologie_2020_bar_06_LRO.pdf'),
   },
   filosofie: {
+    '2026': b('2026/06', 'E_d_filosofie_2026_var_03_LRO.pdf', 'E_d_filosofie_2026_bar_03_LRO.pdf'),
     '2025': b('2025/06', 'E_d_filosofie_2025_var_01_LRO.pdf', 'E_d_filosofie_2025_bar_01_LRO.pdf'),
     '2024': b('2024/07', 'E_d_filosofie_2024_var_03_LRO.pdf', 'E_d_filosofie_2024_bar_03_LRO.pdf'),
     '2023': b('2023/06', 'E_d_filosofie_2023_var_05_LRO.pdf', 'E_d_filosofie_2023_bar_05_LRO.pdf'),
