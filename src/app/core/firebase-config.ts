@@ -12,12 +12,13 @@
  * aplicația mobilă.
  */
 export const firebaseConfig = {
-  apiKey: 'PASTE_API_KEY_HERE',
+  apiKey: 'AIzaSyBLHMYVQcRwqhQQIzHnrOmWPvqj0GqJsEs',
   authDomain: 'bacpro-ba190.firebaseapp.com',
   projectId: 'bacpro-ba190',
   storageBucket: 'bacpro-ba190.firebasestorage.app',
   messagingSenderId: '1083797462241',
-  appId: 'PASTE_WEB_APP_ID_HERE',
+  appId: '1:1083797462241:web:63abdb459f57d7e5616ba0',
+  measurementId: 'G-ETBMQ277B6',
 };
 
 /** Adevărat doar după ce config-ul real a fost lipit mai sus. */

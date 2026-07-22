@@ -179,27 +179,6 @@ const BAC_DURATION = 10800;
         </div>
       </section>
 
-      <!-- ═══ NOTE PERSONALE ═══ -->
-      <section class="group">
-        <div class="group-header">NOTE PERSONALE</div>
-        <div class="card">
-          <div class="notes-cell">
-            <textarea
-              class="notes-area"
-              rows="4"
-              placeholder="Observații, formule, greșeli frecvente..."
-              [(ngModel)]="notes"
-              (focus)="editingNotes.set(true)"
-            ></textarea>
-            @if (editingNotes()) {
-              <button class="ios-btn-text save-btn" (click)="editingNotes.set(false)">
-                Salvează
-              </button>
-            }
-          </div>
-        </div>
-      </section>
-
       <!-- ═══ FINALIZARE ═══ -->
       <section class="group">
         <div class="card">
@@ -495,26 +474,7 @@ const BAC_DURATION = 10800;
         color: var(--label-3);
       }
 
-      /* ── Notes (Apple Notes feel) ── */
-      .notes-cell { padding: 4px 16px 16px; }
-      .notes-area {
-        width: 100%;
-        min-height: 100px;
-        border: none;
-        background: transparent;
-        font-family: inherit;
-        font-size: 17px;
-        line-height: 1.4;
-        color: var(--label);
-        resize: vertical;
-        padding: 12px 0;
-        outline: none;
-      }
-      .notes-area::placeholder { color: var(--label-3); }
-      .save-btn {
-        display: block;
-        margin-left: auto;
-      }
+
     `,
   ],
 })
@@ -533,12 +493,10 @@ export class SubjectDetailComponent implements OnInit {
   readonly timerFinished = signal(false);
   readonly examStarted = signal(false);
   readonly estimatedGrade = signal(7.0);
-  readonly editingNotes = signal(false);
   readonly pdfLoading = signal(true);
   readonly pdfError = signal<string | null>(null);
   readonly pdfAssets = signal<ExamPdfAssets | null>(null);
   readonly fullscreen = signal<{ src: string; examMode: boolean } | null>(null);
-  notes = '';
 
   readonly profileName = signal('');
   readonly subjectName = signal('');
@@ -648,7 +606,6 @@ export class SubjectDetailComponent implements OnInit {
   async markSolved(): Promise<void> {
     this.settings.heavy();
     const user = this.auth.currentUser;
-    const cleanNotes = this.notes.trim();
     if (user) {
       await this.firestore.addSession(user, {
         subjectName: this.subjectName(),
@@ -656,7 +613,7 @@ export class SubjectDetailComponent implements OnInit {
         sessionName: this.sessionName(),
         durationSeconds: BAC_DURATION - this.secondsLeft(),
         estimatedGrade: this.estimatedGrade(),
-        notes: cleanNotes,
+        notes: '',
         completedAt: new Date(),
       });
     }

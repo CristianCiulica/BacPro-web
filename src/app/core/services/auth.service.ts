@@ -10,6 +10,7 @@ import {
   GoogleAuthProvider,
   User,
   createUserWithEmailAndPassword,
+  deleteUser as fbDeleteUser,
   onAuthStateChanged,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -148,6 +149,29 @@ export class AuthService {
     } else {
       localStorage.removeItem(LOCAL_USER_KEY);
       this.user.set(null);
+    }
+  }
+
+  // ── Ștergere cont ─────────────────────────────────────────
+  /** Șterge definitiv contul de autentificare. Datele Firestore trebuie
+   *  șterse ÎNAINTE (cât timp userul e încă autentificat). Poate arunca
+   *  AuthError('requires-recent-login') dacă sesiunea e prea veche. */
+  async deleteAccount(): Promise<void> {
+    const auth = fbAuth();
+    if (!auth || !auth.currentUser) {
+      // Mod local — curăță tot ce ține de utilizator.
+      const user = this.currentUser;
+      localStorage.removeItem(LOCAL_USER_KEY);
+      if (user) localStorage.removeItem('bacpro_local_profile_v1:' + user.uid);
+      this.user.set(null);
+      return;
+    }
+    try {
+      await fbDeleteUser(auth.currentUser);
+      this.fbUser = null;
+      this.user.set(null);
+    } catch (e) {
+      throw this.wrap(e);
     }
   }
 

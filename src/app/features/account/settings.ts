@@ -1,9 +1,10 @@
 /** Setări — port al SettingsScreen din account_screens.dart. */
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { profileDefaults } from '../../core/models/profile-data';
 import { AppSettingsService } from '../../core/services/app-settings.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthError, AuthService } from '../../core/services/auth.service';
 import { FirestoreService } from '../../core/services/firestore.service';
 import { PdfExportService } from '../../core/services/pdf-export.service';
 import {
@@ -57,9 +58,9 @@ import {
             <span slot="leading" class="gicon"><app-icon name="arrow-down-circle" [size]="18" /></span>
           </app-card-row>
           <app-card-row
-            title="Șterge tot istoricul"
-            subtitle="Acțiune ireversibilă"
-            (rowTap)="confirmDeleteHistory()"
+            title="Șterge contul"
+            subtitle="Șterge definitiv contul și toate datele"
+            (rowTap)="confirmDeleteAccount()"
           >
             <span slot="leading" class="gicon danger"><app-icon name="trash" [size]="18" /></span>
           </app-card-row>
@@ -159,6 +160,7 @@ export class SettingsComponent {
   readonly settingsSvc = inject(AppSettingsService);
   private pdfExport = inject(PdfExportService);
   private dialogs = inject(DialogService);
+  private router = inject(Router);
 
   readonly profile = computed(() => {
     const user = this.auth.user();
@@ -192,16 +194,33 @@ export class SettingsComponent {
     await this.dialogs.alert('PDF exportat', `Raportul a fost descărcat:\n${fileName}`);
   }
 
-  async confirmDeleteHistory(): Promise<void> {
+  async confirmDeleteAccount(): Promise<void> {
     const confirmed = await this.dialogs.confirm(
-      'Șterge istoricul?',
-      'Toate sesiunile și notele vor fi șterse permanent.',
-      'Șterge',
+      'Ștergi contul?',
+      'Contul și toate datele tale (istoric, note, setări) vor fi șterse permanent. Această acțiune este ireversibilă.',
+      'Șterge contul',
       'Anulează',
       true,
     );
     if (!confirmed) return;
     const user = this.auth.currentUser;
-    if (user) await this.firestore.deleteAllSessions(user);
+    if (!user) return;
+    try {
+      // Datele Firestore se șterg cât timp userul e încă autentificat,
+      // apoi ștergem contul de autentificare.
+      await this.firestore.deleteUserData(user);
+      await this.auth.deleteAccount();
+      await this.router.navigateByUrl('/login', { replaceUrl: true });
+    } catch (e) {
+      const code = e instanceof AuthError ? e.code : '';
+      if (code === 'requires-recent-login') {
+        await this.dialogs.alert(
+          'Reautentificare necesară',
+          'Din motive de securitate, deconectează-te și intră din nou în cont, apoi șterge contul.',
+        );
+      } else {
+        await this.dialogs.alert('Eroare', 'Nu am putut șterge contul acum. Încearcă din nou.');
+      }
+    }
   }
 }

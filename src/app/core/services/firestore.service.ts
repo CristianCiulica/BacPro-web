@@ -215,6 +215,24 @@ export class FirestoreService {
     await batch.commit();
   }
 
+  /** Șterge TOATE datele utilizatorului: subcolecția sessions + documentul
+   *  users/{uid} (mesajele dezvoltator sunt câmp în doc, deci se șterg cu el). */
+  async deleteUserData(user: AuthUserLike): Promise<void> {
+    const db = fbDb();
+    if (!db) {
+      localStorage.removeItem(LOCAL_PROFILE_KEY + user.uid);
+      localStorage.removeItem(LOCAL_SESSIONS_KEY + user.uid);
+      localStorage.removeItem(LOCAL_MESSAGES_KEY + user.uid);
+      this.sessionsSignal(user).set([]);
+      return;
+    }
+    const snapshot = await getDocs(collection(db, 'users', user.uid, 'sessions'));
+    const batch = writeBatch(db);
+    for (const d of snapshot.docs) batch.delete(d.ref);
+    batch.delete(doc(db, 'users', user.uid));
+    await batch.commit();
+  }
+
   // ── Feedback & mesaje dezvoltator ─────────────────────────
   async submitAppFeedback(user: AuthUserLike, rating: number, message: string): Promise<void> {
     const cleanRating = Math.min(Math.max(rating, 1), 5);

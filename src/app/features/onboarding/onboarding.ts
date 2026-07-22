@@ -70,7 +70,7 @@ import {
                     [class.selected]="selectedProfile() === profile.name"
                     (click)="selectProfile(profile.name)"
                   >
-                    <app-tinted-icon [icon]="profile.icon" [color]="profile.accentColor" />
+                    <app-tinted-icon [icon]="profile.icon" color="#8E98AC" />
                     <div class="texts">
                       <div class="t-headline">{{ profile.name }}</div>
                       <div class="t-subhead">{{ profile.description }}</div>
@@ -78,7 +78,7 @@ import {
                     <app-icon
                       [name]="selectedProfile() === profile.name ? 'check-circle-fill' : 'circle'"
                       [size]="24"
-                      [style.color]="selectedProfile() === profile.name ? 'var(--blue)' : 'var(--label-3)'"
+                      [style.color]="selectedProfile() === profile.name ? 'var(--label)' : 'var(--label-3)'"
                     />
                   </div>
                 }
@@ -91,7 +91,7 @@ import {
               <p class="t-subhead">
                 Estimează media pe care ai obține-o la Bacalaureat acum. O folosim pentru un plan realist.
               </p>
-              <div class="grade-value" [style.color]="gradeColor()">{{ grade().toFixed(1) }}</div>
+              <div class="grade-value">{{ grade().toFixed(1) }}</div>
               <input
                 class="app-slider"
                 type="range"
@@ -100,7 +100,7 @@ import {
                 step="0.5"
                 [ngModel]="grade()"
                 (ngModelChange)="setGrade($event)"
-                [style.--track-color]="gradeColor()"
+                [style.--track-color]="'rgba(142, 152, 172, 0.7)'"
                 [style.--pct.%]="((grade() - 1) / 9) * 100"
               />
               <div class="scale">
@@ -123,13 +123,13 @@ import {
                   <app-icon name="arrow-right" [size]="24" style="color: var(--label-3)" />
                   <div class="gpill">
                     <span class="t-caption">Țintă</span>
-                    <span class="gval" style="color: var(--green)">{{ targetGrade().toFixed(1) }}</span>
+                    <span class="gval" style="color: var(--label)">{{ targetGrade().toFixed(1) }}</span>
                   </div>
                 </div>
                 <div class="gain-box">
                   <div class="gain-head">
-                    <app-icon name="arrow-up-right-circle-fill" [size]="20" style="color: var(--green)" />
-                    <span class="t-headline" style="color: var(--green)">
+                    <app-icon name="arrow-up-right-circle-fill" [size]="20" style="color: var(--label-2)" />
+                    <span class="t-headline" style="color: var(--label)">
                       {{ nearMax() ? 'Aproape de maxim' : '+' + gainLabel() + ' puncte posibile' }}
                     </span>
                   </div>
@@ -147,7 +147,7 @@ import {
               <div class="floating-card time-card">
                 <app-tinted-icon
                   [icon]="enoughTime() ? 'check-seal-fill' : 'bolt-fill'"
-                  [color]="enoughTime() ? '#007AFF' : '#FF9500'"
+                  color="#8E98AC"
                 />
                 <span class="t-subhead time-text">
                   {{
@@ -166,6 +166,7 @@ import {
         <app-button
           [label]="page() === 3 ? 'Intră în BacPro' : 'Continuă'"
           [icon]="page() === 3 ? 'check' : null"
+          btnStyle="mono"
           [loading]="saving()"
           [disabled]="!canAdvance() || saving()"
           (pressed)="next()"
@@ -188,7 +189,7 @@ import {
         border: 0.5px solid var(--separator);
         background: rgba(255, 255, 255, 0.85);
         box-shadow: var(--shadow-soft);
-        color: var(--blue);
+        color: var(--label-2);
         display: flex; align-items: center; justify-content: center;
       }
       .dots { flex: 1; display: flex; justify-content: center; gap: 6px; }
@@ -198,7 +199,7 @@ import {
         background: var(--fill-secondary);
         transition: width var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
       }
-      .dot.done { background: var(--blue); }
+      .dot.done { background: var(--label); }
       .dot.active { width: 22px; }
       .body { flex: 1; overflow-y: auto; }
       .pad { padding: var(--x3) var(--page) var(--x5); }
@@ -235,7 +236,7 @@ import {
         padding: var(--x4);
         transition: border-color var(--dur-fast) ease-out;
       }
-      .option.selected { border: 1.6px solid var(--blue); }
+      .option.selected { border: 1.6px solid var(--label); }
       .option .texts { flex: 1; min-width: 0; }
       .grade-value {
         text-align: center;
@@ -244,6 +245,7 @@ import {
         font-weight: 700;
         letter-spacing: -2px;
         margin: var(--x6) 0 var(--x4);
+        color: var(--label);
       }
       .scale { display: flex; justify-content: space-between; }
       .estimate { margin-top: var(--x5); border-radius: var(--r-xl); }
@@ -252,7 +254,7 @@ import {
       .gval { font-family: var(--font-display); font-size: 40px; font-weight: 700; letter-spacing: -1px; }
       .gain-box {
         margin-top: var(--x4);
-        background: rgba(52, 199, 89, 0.13);
+        background: var(--fill);
         border-radius: var(--r-md);
         padding: var(--x4);
       }
@@ -278,11 +280,6 @@ export class OnboardingComponent {
   readonly grade = signal(6.0);
   readonly saving = signal(false);
   name = '';
-
-  readonly gradeColor = computed(() => {
-    const g = this.grade();
-    return g >= 8.5 ? 'var(--green)' : g >= 5 ? 'var(--orange)' : 'var(--red)';
-  });
 
   /* Matematica estimării — identică cu onboarding_screen.dart. */
   private desiredGain = computed(() =>
