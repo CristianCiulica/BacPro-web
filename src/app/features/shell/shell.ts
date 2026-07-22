@@ -236,8 +236,8 @@ interface DrawerEntry {
       .sb-item span { flex: 1; }
       .sb-item:hover { background: rgba(0, 0, 0, 0.04); color: var(--label); }
       .sb-item:active { background: rgba(0, 0, 0, 0.08); }
-      .sb-item.active { background: var(--blue); color: #ffffff; font-weight: 500; }
-      .sb-item.active app-icon { color: #ffffff; }
+      .sb-item.active { background: var(--fill); color: var(--label); font-weight: 600; }
+      .sb-item.active app-icon { color: var(--label); }
       .sb-item.danger { color: var(--red); }
       .sb-item.danger:hover { background: rgba(255, 59, 48, 0.08); }
       .sb-foot { padding-top: 12px; border-top: 0.5px solid var(--separator); }
@@ -557,7 +557,6 @@ export class ShellComponent {
       { icon: 'gear', label: 'Setări', route: '/settings' },
     ],
     [
-      { icon: 'star', label: 'Evaluează aplicația', route: '/rating' },
       { icon: 'info-circle', label: 'Despre BacPro', route: '/about' },
     ],
   ];
@@ -576,7 +575,6 @@ export class ShellComponent {
       label: 'Aplicație',
       items: [
         { icon: 'gear', label: 'Setări', route: '/settings' },
-        { icon: 'star', label: 'Evaluează', route: '/rating' },
         { icon: 'info-circle', label: 'Despre BacPro', route: '/about' },
       ],
     },

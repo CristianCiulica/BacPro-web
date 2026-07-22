@@ -104,10 +104,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/account/about').then((m) => m.PolicyComponent),
       },
       {
-        path: 'rating',
-        loadComponent: () => import('./features/account/rating').then((m) => m.RatingComponent),
-      },
-      {
         path: 'dev-messages',
         loadComponent: () =>
           import('./features/account/dev-messages').then((m) => m.DevMessagesComponent),

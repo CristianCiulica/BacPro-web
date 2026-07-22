@@ -119,7 +119,7 @@ export function lerpToBlue(hex: string, t: number): string {
 }
 
 /* ------------------------------------------------------------- AppButton -- */
-export type AppButtonStyle = 'primary' | 'secondary' | 'glass' | 'destructive' | 'subtle';
+export type AppButtonStyle = 'primary' | 'secondary' | 'glass' | 'destructive' | 'subtle' | 'mono';
 
 @Component({
   selector: 'app-button',
@@ -211,6 +211,8 @@ export class AppButtonComponent {
       case 'glass': return 'var(--glass)';
       case 'destructive': return tint('#FF3B30');
       case 'subtle': return 'var(--fill)';
+      // umplere monocromă care se inversează cu tema (negru→alb)
+      case 'mono': return 'var(--label)';
     }
   });
   fg = computed(() => {
@@ -220,6 +222,7 @@ export class AppButtonComponent {
       case 'glass': return 'var(--label)';
       case 'destructive': return '#FF3B30';
       case 'subtle': return 'var(--label-2)';
+      case 'mono': return 'var(--surface)';
     }
   });
   border = computed(() => (this.btnStyle() === 'glass' ? '1px solid var(--glass-stroke)' : 'none'));
@@ -440,17 +443,45 @@ export class EmptyStateComponent {
   `,
   styles: [
     `
-      .group { padding: var(--x5) var(--page) 0; }
+      .group { padding: 22px 24px 0; }
+      .section-header {
+        font-family: var(--font-display);
+        font-size: 12px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9CA3AF;
+        padding: 0 0 8px 12px;
+      }
       .card {
-        background: var(--surface);
-        border-radius: var(--r-lg);
-        box-shadow: var(--shadow-soft);
+        background: #FFFFFF;
+        border-radius: 20px;
+        border: 1px solid #ECECEC;
+        box-shadow: none;
         overflow: hidden;
       }
       .card ::ng-deep > *:not(:last-child) {
-        border-bottom: 0.5px solid var(--separator);
+        border-bottom: 1px solid #ECECEC;
       }
-      .footer { padding: var(--x2) var(--x2) 0; }
+      .footer {
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 400;
+        color: #9CA3AF;
+        padding: 8px 12px 0;
+      }
+
+      :host-context(.dark) .card {
+        background: #1C1C1E;
+        border-color: rgba(255, 255, 255, 0.08);
+      }
+      :host-context(.dark) .card ::ng-deep > *:not(:last-child) {
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+      }
+      :host-context(.dark) .section-header,
+      :host-context(.dark) .footer {
+        color: #8E8E93;
+      }
     `,
   ],
 })
@@ -473,14 +504,14 @@ export class CardGroupComponent {
     >
       <ng-content select="[slot=leading]" />
       <div class="texts">
-        <div class="t-body title">{{ title() }}</div>
+        <div class="title">{{ title() }}</div>
         @if (subtitle()) {
-          <div class="t-subhead subtitle">{{ subtitle() }}</div>
+          <div class="subtitle">{{ subtitle() }}</div>
         }
       </div>
       <ng-content select="[slot=trailing]" />
       @if (tappable() && showChevron()) {
-        <app-icon name="chevron-right" [size]="15" class="chev" />
+        <app-icon name="chevron-right" [size]="14" class="chev" />
       }
     </div>
   `,
@@ -490,25 +521,49 @@ export class CardGroupComponent {
         display: flex;
         align-items: center;
         gap: 14px;
-        padding: 13px var(--x4);
-        background: transparent;
-        transition: background var(--dur-fast) ease-out;
+        min-height: 62px;
+        padding: 12px 18px;
+        background: #FFFFFF;
+        transition: background 120ms ease-out;
+        box-sizing: border-box;
       }
       .row.tappable { cursor: pointer; user-select: none; }
-      @media (hover: hover) {
-        .row.tappable:hover { background: rgba(238, 242, 248, 0.6); }
-      }
-      .row.tappable:active { background: var(--fill); }
+      .row.tappable:active { background: #F2F2F7; }
       .texts { flex: 1; min-width: 0; }
-      .title { font-weight: 500; }
+      .title {
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 500;
+        color: #111827;
+      }
       .subtitle {
         margin-top: 2px;
+        font-family: var(--font-display);
+        font-size: 14px;
+        font-weight: 400;
+        color: #8E8E93;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
-      .chev { color: var(--label-3); margin-left: -6px; }
+      .chev { color: #C7C7CC; margin-left: -4px; }
+
+      :host-context(.dark) .row {
+        background: #1C1C1E;
+      }
+      :host-context(.dark) .row.tappable:active {
+        background: #2C2C2E;
+      }
+      :host-context(.dark) .title {
+        color: #FFFFFF;
+      }
+      :host-context(.dark) .subtitle {
+        color: #8E8E93;
+      }
+      :host-context(.dark) .chev {
+        color: #636366;
+      }
     `,
   ],
 })
@@ -671,7 +726,7 @@ export class GlassHeaderComponent {
         flex: none;
         padding: 0;
       }
-      .sw.on { background: var(--blue); }
+      .sw.on { background: #1C1C1E; }
       .knob {
         position: absolute;
         top: 2px; left: 2px;
@@ -682,6 +737,11 @@ export class GlassHeaderComponent {
         transition: transform var(--dur-base) var(--ease);
       }
       .sw.on .knob { transform: translateX(20px); }
+
+      /* Dark: oglindește look-ul din light — pastilă albă + buton închis,
+         altfel pastila neagră se confundă cu cardul și se vede doar butonul. */
+      :host-context(.dark) .sw.on { background: #f2f2f7; }
+      :host-context(.dark) .sw.on .knob { background: #1c1c1e; box-shadow: none; }
     `,
   ],
 })

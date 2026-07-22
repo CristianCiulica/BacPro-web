@@ -72,10 +72,10 @@ interface RandomPick {
           <app-button
             label="Generează alt subiect"
             icon="shuffle"
-            btnStyle="secondary"
+            btnStyle="subtle"
             (pressed)="reroll()"
           />
-          <app-button label="Începe subiectul" icon="play-fill" (pressed)="start()" />
+          <app-button label="Începe subiectul" icon="play-fill" btnStyle="mono" (pressed)="start()" />
         } @else {
           <div class="empty-hint">
             <app-icon name="shuffle" [size]="26" />
@@ -110,6 +110,7 @@ interface RandomPick {
         text-align: left;
         cursor: pointer;
         background: var(--surface);
+        color: var(--label);
         border-radius: var(--r-md);
         box-shadow: var(--shadow-soft), inset 0 0 0 0.5px var(--hairline);
         transition: box-shadow 160ms var(--ease), transform 120ms var(--ease);
@@ -132,6 +133,7 @@ interface RandomPick {
         letter-spacing: -0.2px;
         line-height: 1.15;
         min-width: 0;
+        color: var(--label);
       }
       .sp-check {
         position: absolute;
@@ -166,6 +168,7 @@ interface RandomPick {
         padding: var(--x7) var(--x5);
         font-size: 14px;
       }
+
     `,
   ],
 })

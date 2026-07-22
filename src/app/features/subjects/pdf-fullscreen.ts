@@ -28,6 +28,7 @@ import {
   viewChild,
 } from '@angular/core';
 
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import * as pdfjsLib from 'pdfjs-dist';
 
 import { AppSettingsService } from '../../core/services/app-settings.service';
@@ -71,6 +72,16 @@ export interface ExamFullscreenResult {
               <button class="err-back" (click)="close()">Înapoi</button>
             </div>
           </div>
+        } @else if (useIframe()) {
+          <!-- Fallback: sursa nu trimite CORS (ex. edupedu) → iframe nativ.
+               Redă inline pe desktop/Android; pe iOS pagina 1 + „deschide în tab". -->
+          <iframe [src]="safeSrc()" title="Document PDF" (load)="onFrameLoad()"></iframe>
+          @if (loading()) {
+            <div class="loading">
+              <span class="spinner light"></span>
+              <span class="ltext">Se încarcă subiectul...</span>
+            </div>
+          }
         } @else {
           <div class="pages" #pagesContainer>
             <!-- Paginile canvas se inserează dinamic din cod -->
@@ -167,6 +178,13 @@ export interface ExamFullscreenResult {
         /* Umbre subtile pe fiecare pagină pentru separare vizuală */
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
       }
+      iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: #525659;
+        -webkit-overflow-scrolling: touch;
+      }
       .loading {
         position: absolute;
         inset: 0;
@@ -259,7 +277,10 @@ export class PdfFullscreenComponent implements OnInit, AfterViewInit, OnDestroy 
   readonly secondsLeft = signal(10800);
   readonly loading = signal(true);
   readonly failed = signal(false);
+  readonly useIframe = signal(false);
+  readonly safeSrc = signal<SafeResourceUrl>('');
 
+  private sanitizer = inject(DomSanitizer);
   private timer: ReturnType<typeof setInterval> | null = null;
   private loadWatchdog: ReturnType<typeof setTimeout> | null = null;
   private pdfDoc: pdfjsLib.PDFDocumentProxy | null = null;
@@ -318,8 +339,9 @@ export class PdfFullscreenComponent implements OnInit, AfterViewInit, OnDestroy 
       });
       this.pdfDoc = await task.promise;
     } catch {
-      this.loading.set(false);
-      this.failed.set(true);
+      // Sursa nu trimite CORS (ex. cdn.edupedu.ro) → fetch-ul PDF.js e blocat.
+      // Cădem pe iframe-ul nativ, care nu are restricția de CORS.
+      this.fallbackToIframe(url);
       return;
     }
 
@@ -382,6 +404,25 @@ export class PdfFullscreenComponent implements OnInit, AfterViewInit, OnDestroy 
 
     // Asigurăm că loading e false dacă nu a fost deja
     this.loading.set(false);
+  }
+
+  /** PDF.js a eșuat (CORS) → afișăm documentul prin iframe nativ. */
+  private fallbackToIframe(url: string): void {
+    if (this.renderAborted) return;
+    const withView = url.includes('#') ? url : `${url}#view=FitH`;
+    this.safeSrc.set(this.sanitizer.bypassSecurityTrustResourceUrl(withView));
+    this.loading.set(true);
+    this.useIframe.set(true);
+    // watchdog-ul din ngOnInit rămâne activ: dacă nici iframe-ul nu se încarcă
+    // în 15s, va comuta pe ecranul de eroare.
+  }
+
+  onFrameLoad(): void {
+    this.loading.set(false);
+    if (this.loadWatchdog) {
+      clearTimeout(this.loadWatchdog);
+      this.loadWatchdog = null;
+    }
   }
 
   readonly formattedTime = computed(() => {

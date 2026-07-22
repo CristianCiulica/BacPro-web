@@ -250,6 +250,14 @@ a { color: var(--blue); text-decoration: none; }
   * { transition-duration: 0.01ms !important; }
 }
 
+/* La comutarea temei: fără nicio tranziție → tot ecranul se schimbă instant */
+:root.theme-switching,
+:root.theme-switching *,
+:root.theme-switching *::before,
+:root.theme-switching *::after {
+  transition: none !important;
+}
+
 /* aurora — fundal auth */
 .aurora {
   position: relative;

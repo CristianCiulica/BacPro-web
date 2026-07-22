@@ -26,10 +26,17 @@ export class AppSettingsService {
   }
 
   private applyTheme(dark: boolean): void {
-    document.documentElement.classList.toggle('dark', dark);
+    const root = document.documentElement;
+    // Dezactivează tranzițiile pe durata comutării → flip instant, fără sweep
+    // parțial (altfel fundalurile cu `transition: background` se animează).
+    root.classList.add('theme-switching');
+    root.classList.toggle('dark', dark);
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute('content', dark ? '#0A0C12' : '#F4F6FB');
+    // Forțează un reflow, apoi reactivează tranzițiile la următorul frame.
+    void root.offsetHeight;
+    requestAnimationFrame(() => root.classList.remove('theme-switching'));
   }
 
   setHaptics(value: boolean): void {

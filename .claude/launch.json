@@ -2,8 +2,7 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "bacpro-web",
-      "cwd": "/Users/cristian/Desktop/bacpro-web",
+      "name": "dev",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["start"],
       "port": 4200

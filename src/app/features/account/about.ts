@@ -84,9 +84,6 @@ export const PRIVACY_SECTIONS: PolicySection[] = [
         <app-card-row title="Politica de confidențialitate" (rowTap)="go('/privacy')">
           <span slot="leading" class="gicon"><app-icon name="lock-shield" [size]="20" /></span>
         </app-card-row>
-        <app-card-row title="Evaluează pe App Store" (rowTap)="noop()">
-          <span slot="leading" class="gicon"><app-icon name="star" [size]="20" /></span>
-        </app-card-row>
       </app-card-group>
 
       <div class="footer">

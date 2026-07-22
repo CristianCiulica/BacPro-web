@@ -164,6 +164,16 @@ import { EmptyStateComponent, GlassHeaderComponent } from '../../ui/ui';
         padding-top: 40px;
         background: #FFFFFF;
       }
+
+      :host-context(.dark) {
+        &, .page-scroll, .minimal-list, .minimal-row, .empty-wrapper, .minimal-header {
+          background: #000000 !important;
+        }
+        .minimal-row:active { background: #141414; }
+        .minimal-header { border-color: #1C1C1E; }
+        .row-separator { background: #1C1C1E; }
+        .back-btn, .minimal-title, .t-title { color: #FFFFFF; }
+      }
     `
   ]
 })

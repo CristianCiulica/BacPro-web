@@ -28,58 +28,128 @@ import {
   template: `
     <app-glass-header title="Setări" />
     <div class="page-scroll">
-      <app-card-group header="Aspect">
-        <div class="swcell">
-          <span class="gicon"><app-icon name="moon-fill" [size]="19" /></span>
-          <span class="t-body swlabel">Dark mode</span>
-          <app-switch [value]="settingsSvc.darkMode()" (valueChange)="setDarkMode($event)" />
-        </div>
-        <div class="swcell">
-          <span class="gicon"><app-icon name="hex-grid" [size]="20" /></span>
-          <span class="t-body swlabel">Feedback haptic</span>
-          <app-switch [value]="profile().haptics" (valueChange)="setHaptics($event)" />
-        </div>
-      </app-card-group>
+      <div class="settings-container">
+        
+        <app-card-group header="Aspect">
+          <div class="swcell">
+            <span class="gicon"><app-icon name="moon-fill" [size]="18" /></span>
+            <span class="swlabel">Dark mode</span>
+            <app-switch [value]="settingsSvc.darkMode()" (valueChange)="setDarkMode($event)" />
+          </div>
+          <div class="swcell">
+            <span class="gicon"><app-icon name="hex-grid" [size]="18" /></span>
+            <span class="swlabel">Feedback haptic</span>
+            <app-switch [value]="profile().haptics" (valueChange)="setHaptics($event)" />
+          </div>
+        </app-card-group>
 
-      <app-card-group header="Date">
-        <div class="swcell">
-          <span class="gicon"><app-icon name="cloud" [size]="20" /></span>
-          <span class="t-body swlabel">Salvare automată</span>
-          <app-switch [value]="profile().autoSave" (valueChange)="setAutoSave($event)" />
+        <app-card-group header="Date">
+          <div class="swcell">
+            <span class="gicon"><app-icon name="cloud" [size]="18" /></span>
+            <span class="swlabel">Salvare automată</span>
+            <app-switch [value]="profile().autoSave" (valueChange)="setAutoSave($event)" />
+          </div>
+          <app-card-row
+            title="Exportă datele mele"
+            subtitle="Generează raport PDF"
+            (rowTap)="exportData()"
+          >
+            <span slot="leading" class="gicon"><app-icon name="arrow-down-circle" [size]="18" /></span>
+          </app-card-row>
+          <app-card-row
+            title="Șterge tot istoricul"
+            subtitle="Acțiune ireversibilă"
+            (rowTap)="confirmDeleteHistory()"
+          >
+            <span slot="leading" class="gicon danger"><app-icon name="trash" [size]="18" /></span>
+          </app-card-row>
+        </app-card-group>
+
+        <div class="settings-footer">
+          Version 1.0.0
         </div>
-        <app-card-row
-          title="Exportă datele mele"
-          subtitle="Generează raport PDF"
-          (rowTap)="exportData()"
-        >
-          <span slot="leading" class="gicon"><app-icon name="arrow-down-circle" [size]="20" /></span>
-        </app-card-row>
-        <app-card-row
-          title="Șterge tot istoricul"
-          subtitle="Acțiune ireversibilă"
-          (rowTap)="confirmDeleteHistory()"
-        >
-          <span slot="leading" class="gicon danger"><app-icon name="trash" [size]="20" /></span>
-        </app-card-row>
-      </app-card-group>
-      <div style="height: var(--x10)"></div>
+        <div style="height: 32px"></div>
+
+      </div>
     </div>
   `,
   styles: [
     `
-      .swcell { display: flex; align-items: center; gap: 14px; padding: 10px var(--x4); }
-      .swlabel { flex: 1; font-weight: 500; }
+      :host {
+        display: block;
+        min-height: 100dvh;
+        background: #FFFFFF !important;
+      }
+      .page-scroll {
+        background: #FFFFFF !important;
+        min-height: 100dvh;
+      }
+      .settings-container {
+        padding-top: 16px;
+        background: #FFFFFF !important;
+      }
+      .swcell {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-height: 62px;
+        padding: 12px 18px;
+        box-sizing: border-box;
+        background: #FAFAFC;
+      }
+      .swlabel {
+        flex: 1;
+        font-family: var(--font-display);
+        font-size: 17px;
+        font-weight: 500;
+        color: #111827;
+      }
       .gicon {
-        width: 40px; height: 40px;
-        border-radius: 13px;
-        background: var(--fill);
-        color: var(--label-2);
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #F4F4F6;
+        color: #8E8E93;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex: none;
       }
-      .gicon.danger { color: var(--red); }
+      .gicon.danger {
+        background: rgba(255, 59, 48, 0.1);
+        color: #FF3B30;
+      }
+      .settings-footer {
+        text-align: center;
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 400;
+        color: #9CA3AF;
+        margin-top: 32px;
+      }
+
+      :host-context(.dark) {
+        display: block;
+        background: #000000 !important;
+      }
+      :host-context(.dark) .page-scroll,
+      :host-context(.dark) .settings-container {
+        background: #000000 !important;
+      }
+      :host-context(.dark) .swcell {
+        background: #1C1C1E;
+      }
+      :host-context(.dark) .swlabel {
+        color: #FFFFFF;
+      }
+      :host-context(.dark) .gicon {
+        background: #2C2C2E;
+        color: #8E8E93;
+      }
+      :host-context(.dark) .gicon.danger {
+        background: rgba(255, 59, 48, 0.2);
+        color: #FF453A;
+      }
     `,
   ],
 })
