@@ -5,7 +5,6 @@ countdown, progres și gamificare. Rescriere completă în **Angular** (web app
 optimizată pentru telefon) a aplicației mobile Flutter, funcțional identică.
 
 ## Rulare
-
 ```bash
 npm install
 npm start          # http://localhost:4200
