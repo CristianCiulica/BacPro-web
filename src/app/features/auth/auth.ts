@@ -21,6 +21,7 @@ import {
   DialogService,
   IconComponent,
 } from '../../ui/ui';
+import { AuthSplitComponent } from './auth-split';
 import {
   GOOGLE_ERROR_GENERIC,
   GOOGLE_ERROR_NOT_CONFIGURED,
@@ -108,7 +109,8 @@ const AUTH_STYLES = `
     transition: border-color 0.2s ease-out;
   }
   .app-input:focus-within {
-    border-color: var(--label-3);
+    border-color: rgba(0, 122, 255, 0.55);
+    box-shadow: 0 0 0 3.5px rgba(0, 122, 255, 0.12);
   }
   .app-input label {
     font-size: 13px;
@@ -152,6 +154,7 @@ const AUTH_STYLES = `
     font-size: 15px;
     cursor: pointer;
   }
+  .cta-gap { margin: 48px 0 16px; }
   .divider {
     display: flex;
     align-items: center;
@@ -198,15 +201,57 @@ const AUTH_STYLES = `
     color: var(--label);
     font-weight: 600;
   }
+
+  /* ---------------------------------------------------------------- hover -- */
+  @media (hover: hover) {
+    .back-row:hover { color: var(--label); }
+    .forgot:hover { color: var(--label); }
+    .google-btn:hover {
+      background: var(--fill);
+      border-color: var(--label-3);
+    }
+    .switch-link:hover b { text-decoration: underline; text-underline-offset: 3px; }
+    .suffix-btn:hover { color: var(--label-2); }
+  }
+
+  /* -------------------------------------------------------------- desktop -- */
+  @media (min-width: 1024px) {
+    .wrap {
+      min-height: auto;
+      padding: 0;
+      align-items: center;
+      background: transparent;
+    }
+    .panel {
+      max-width: 408px;
+      padding: 34px 36px 30px;
+      background: var(--surface);
+      border-radius: 24px;
+      border: 0.5px solid var(--hairline);
+      box-shadow:
+        0 1px 2px rgba(11, 15, 28, 0.05),
+        0 30px 60px -32px rgba(11, 15, 28, 0.3);
+    }
+    .back-row { margin-bottom: var(--x4); font-size: 15px; }
+    .heading { font-size: 29px; letter-spacing: -0.6px; }
+    .sub { font-size: 16px; margin-top: 6px; }
+    .fields { margin-top: 24px; }
+    .app-input { min-height: 60px; border-radius: 14px; }
+    .input-row input { font-size: 16px; }
+    .divider { margin: var(--x5) 0; }
+    .google-btn { height: 50px; font-size: 16px; }
+    .switch-link { margin-top: var(--x6); font-size: 15px; }
+    .cta-gap { margin: 28px 0 0; }
+  }
 `;
 
 /* -------------------------------------------------------------- Landing -- */
 @Component({
   selector: 'app-login-landing',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AppButtonComponent, RouterLink],
+  imports: [AppButtonComponent, RouterLink, AuthSplitComponent],
   template: `
-    <div class="landing-bg">
+    <app-auth-split>
       <div class="landing">
         <div class="hero-block">
           <div class="logo-wrap">
@@ -215,19 +260,19 @@ const AUTH_STYLES = `
           <h1 class="brand">BacPro</h1>
           <p class="tagline">Bacalaureatul, mai simplu.</p>
         </div>
+        <div class="welcome">
+          <h1>Bine ai venit</h1>
+          <p>Intră în cont ca să-ți continui pregătirea de unde ai rămas.</p>
+        </div>
         <div class="cta">
           <app-button label="Intră în cont" [height]="56" accent="var(--label)" routerLink="/login/form" />
           <button class="text-link" routerLink="/register">Nu ai cont? Creează unul</button>
         </div>
       </div>
-    </div>
+    </app-auth-split>
   `,
   styles: [
     `
-      .landing-bg {
-        background: var(--bg);
-        min-height: 100dvh;
-      }
       .landing {
         min-height: 100dvh;
         max-width: 460px;
@@ -262,6 +307,7 @@ const AUTH_STYLES = `
         margin: 0;
       }
       .tagline { margin: 8px 0 0; font-size: 17px; color: var(--label-2); }
+      .welcome { display: none; }
       .cta { display: flex; flex-direction: column; gap: 16px; padding-bottom: env(safe-area-inset-bottom, 0px); }
       .text-link {
         background: none;
@@ -271,9 +317,45 @@ const AUTH_STYLES = `
         font-weight: 500;
         color: var(--label-2);
         cursor: pointer;
-        transition: opacity 0.2s;
+        transition: opacity 0.2s, color 0.2s;
       }
       .text-link:active { opacity: 0.6; }
+      @media (hover: hover) {
+        .text-link:hover { color: var(--label); }
+      }
+
+      /* ------------------------------------------------------------ desktop -- */
+      @media (min-width: 1024px) {
+        .landing {
+          min-height: auto;
+          max-width: 408px;
+          padding: 38px 36px 30px;
+          justify-content: flex-start;
+          background: var(--surface);
+          border-radius: 24px;
+          border: 0.5px solid var(--hairline);
+          box-shadow:
+            0 1px 2px rgba(11, 15, 28, 0.05),
+            0 30px 60px -32px rgba(11, 15, 28, 0.3);
+        }
+        .hero-block { display: none; }
+        .welcome { display: block; }
+        .welcome h1 {
+          margin: 0;
+          font-family: var(--font-display);
+          font-size: 29px;
+          font-weight: 700;
+          letter-spacing: -0.6px;
+          color: var(--label);
+        }
+        .welcome p {
+          margin: 8px 0 0;
+          font-size: 16px;
+          line-height: 1.45;
+          color: var(--label-2);
+        }
+        .cta { margin-top: 30px; gap: 10px; padding-bottom: 0; }
+      }
     `,
   ],
 })
@@ -283,16 +365,16 @@ export class LoginLandingComponent {}
 @Component({
   selector: 'app-login-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, AppButtonComponent, IconComponent],
+  imports: [FormsModule, AppButtonComponent, IconComponent, AuthSplitComponent],
   template: `
-    <div class="landing-bg">
+    <app-auth-split>
       <div class="wrap">
         <div class="panel">
           <button class="back-row" (click)="back()" aria-label="Înapoi">
             <app-icon name="chevron-back" [size]="20" />
             <span>Înapoi</span>
           </button>
-          
+
           <div class="heading">Autentificare</div>
           <div class="sub">Continuă-ți pregătirea.</div>
 
@@ -300,7 +382,12 @@ export class LoginLandingComponent {}
             <div class="app-input">
               <label>Email</label>
               <div class="input-row">
-                <input type="email" [(ngModel)]="email" autocomplete="email" />
+                <input
+                  type="email"
+                  [(ngModel)]="email"
+                  autocomplete="email"
+                  (keyup.enter)="signIn()"
+                />
               </div>
             </div>
             <div class="app-input">
@@ -310,6 +397,7 @@ export class LoginLandingComponent {}
                   [type]="showPassword() ? 'text' : 'password'"
                   [(ngModel)]="password"
                   autocomplete="current-password"
+                  (keyup.enter)="signIn()"
                 />
                 <button class="suffix-btn" (click)="showPassword.set(!showPassword())" aria-label="Arată parola">
                   <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="19" />
@@ -320,7 +408,7 @@ export class LoginLandingComponent {}
 
           <button class="forgot" [disabled]="loading()" (click)="resetPassword()">Ai uitat parola?</button>
 
-          <div style="margin: 48px 0 16px">
+          <div class="cta-gap">
             <app-button label="Intră în cont" [height]="54" accent="var(--label)" [loading]="loading()" [disabled]="loading()" (pressed)="signIn()" />
           </div>
 
@@ -336,7 +424,7 @@ export class LoginLandingComponent {}
           </div>
         </div>
       </div>
-    </div>
+    </app-auth-split>
   `,
   styles: [AUTH_STYLES],
 })
@@ -424,16 +512,16 @@ export class LoginFormComponent {
 @Component({
   selector: 'app-register',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, AppButtonComponent, IconComponent],
+  imports: [FormsModule, AppButtonComponent, IconComponent, AuthSplitComponent],
   template: `
-    <div class="landing-bg">
+    <app-auth-split>
       <div class="wrap">
         <div class="panel">
           <button class="back-row" (click)="back()" aria-label="Înapoi">
             <app-icon name="chevron-back" [size]="20" />
             <span>Înapoi</span>
           </button>
-          
+
           <div class="heading">Creează cont</div>
           <div class="sub">Îți salvăm progresul și sesiunile.</div>
 
@@ -441,7 +529,12 @@ export class LoginFormComponent {
             <div class="app-input">
               <label>Email</label>
               <div class="input-row">
-                <input type="email" [(ngModel)]="email" autocomplete="email" />
+                <input
+                  type="email"
+                  [(ngModel)]="email"
+                  autocomplete="email"
+                  (keyup.enter)="register()"
+                />
               </div>
             </div>
             <div class="app-input">
@@ -451,6 +544,7 @@ export class LoginFormComponent {
                   [type]="showPassword() ? 'text' : 'password'"
                   [(ngModel)]="password"
                   autocomplete="new-password"
+                  (keyup.enter)="register()"
                 />
                 <button class="suffix-btn" (click)="showPassword.set(!showPassword())" aria-label="Arată parola">
                   <app-icon [name]="showPassword() ? 'eye-off' : 'eye'" [size]="19" />
@@ -464,6 +558,7 @@ export class LoginFormComponent {
                   [type]="showConfirm() ? 'text' : 'password'"
                   [(ngModel)]="confirm"
                   autocomplete="new-password"
+                  (keyup.enter)="register()"
                 />
                 <button class="suffix-btn" (click)="showConfirm.set(!showConfirm())" aria-label="Arată parola">
                   <app-icon [name]="showConfirm() ? 'eye-off' : 'eye'" [size]="19" />
@@ -472,7 +567,7 @@ export class LoginFormComponent {
             </div>
           </div>
 
-          <div style="margin: 48px 0 16px">
+          <div class="cta-gap">
             <app-button label="Creează cont" [height]="54" accent="var(--label)" [loading]="loading()" [disabled]="loading()" (pressed)="register()" />
           </div>
 
@@ -488,7 +583,7 @@ export class LoginFormComponent {
           </div>
         </div>
       </div>
-    </div>
+    </app-auth-split>
   `,
   styles: [AUTH_STYLES],
 })
