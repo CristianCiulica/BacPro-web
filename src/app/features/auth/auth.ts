@@ -109,8 +109,8 @@ const AUTH_STYLES = `
     transition: border-color 0.2s ease-out;
   }
   .app-input:focus-within {
-    border-color: rgba(0, 122, 255, 0.55);
-    box-shadow: 0 0 0 3.5px rgba(0, 122, 255, 0.12);
+    border-color: var(--label-3);
+    box-shadow: 0 0 0 3.5px rgba(120, 132, 150, 0.14);
   }
   .app-input label {
     font-size: 13px;
@@ -223,25 +223,66 @@ const AUTH_STYLES = `
       background: transparent;
     }
     .panel {
-      max-width: 408px;
-      padding: 34px 36px 30px;
-      background: var(--surface);
-      border-radius: 24px;
-      border: 0.5px solid var(--hairline);
+      max-width: 436px;
+      padding: 44px 40px 36px;
+      background: rgba(255, 255, 255, 0.72);
+      -webkit-backdrop-filter: blur(30px) saturate(1.35);
+      backdrop-filter: blur(30px) saturate(1.35);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 28px;
       box-shadow:
-        0 1px 2px rgba(11, 15, 28, 0.05),
-        0 30px 60px -32px rgba(11, 15, 28, 0.3);
+        0 2px 6px rgba(28, 36, 52, 0.04),
+        0 34px 70px -32px rgba(28, 36, 52, 0.26);
     }
-    .back-row { margin-bottom: var(--x4); font-size: 15px; }
-    .heading { font-size: 29px; letter-spacing: -0.6px; }
-    .sub { font-size: 16px; margin-top: 6px; }
-    .fields { margin-top: 24px; }
-    .app-input { min-height: 60px; border-radius: 14px; }
+    .back-row { display: none; }
+    .heading { font-size: 31px; letter-spacing: -0.9px; text-align: center; }
+    .sub { font-size: 16px; margin-top: 8px; text-align: center; }
+
+    /* câmpuri cu eticheta deasupra, ca într-un formular web clasic */
+    .fields { margin-top: 30px; gap: 18px; }
+    .app-input {
+      display: block;
+      min-height: 0;
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .app-input:focus-within {
+      border-color: transparent;
+      box-shadow: none;
+    }
+    .app-input label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--label);
+      margin-bottom: 8px;
+    }
+    .input-row {
+      height: 50px;
+      padding: 0 15px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--separator);
+      border-radius: 12px;
+      transition: border-color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+    }
+    .app-input:focus-within .input-row {
+      border-color: var(--label-3);
+      box-shadow: 0 0 0 3.5px rgba(120, 132, 150, 0.14);
+    }
     .input-row input { font-size: 16px; }
+
+    .forgot { margin-top: 14px; font-size: 14px; }
+    .cta-gap { margin: 26px 0 0; }
     .divider { margin: var(--x5) 0; }
-    .google-btn { height: 50px; font-size: 16px; }
-    .switch-link { margin-top: var(--x6); font-size: 15px; }
-    .cta-gap { margin: 28px 0 0; }
+    .google-btn {
+      height: 50px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 12px;
+    }
+    .switch-link { margin-top: var(--x5); font-size: 15px; }
   }
 `;
 
@@ -262,7 +303,7 @@ const AUTH_STYLES = `
         </div>
         <div class="welcome">
           <h1>Bine ai venit</h1>
-          <p>Intră în cont ca să-ți continui pregătirea de unde ai rămas.</p>
+          <p>Continuă-ți pregătirea de unde ai rămas.</p>
         </div>
         <div class="cta">
           <app-button label="Intră în cont" [height]="56" accent="var(--label)" routerLink="/login/form" />
@@ -328,24 +369,26 @@ const AUTH_STYLES = `
       @media (min-width: 1024px) {
         .landing {
           min-height: auto;
-          max-width: 408px;
-          padding: 38px 36px 30px;
+          max-width: 436px;
+          padding: 44px 40px 36px;
           justify-content: flex-start;
-          background: var(--surface);
-          border-radius: 24px;
-          border: 0.5px solid var(--hairline);
+          background: rgba(255, 255, 255, 0.72);
+          -webkit-backdrop-filter: blur(30px) saturate(1.35);
+          backdrop-filter: blur(30px) saturate(1.35);
+          border: 1px solid rgba(255, 255, 255, 0.85);
+          border-radius: 28px;
           box-shadow:
-            0 1px 2px rgba(11, 15, 28, 0.05),
-            0 30px 60px -32px rgba(11, 15, 28, 0.3);
+            0 2px 6px rgba(28, 36, 52, 0.04),
+            0 34px 70px -32px rgba(28, 36, 52, 0.26);
         }
         .hero-block { display: none; }
-        .welcome { display: block; }
+        .welcome { display: block; text-align: center; }
         .welcome h1 {
           margin: 0;
           font-family: var(--font-display);
-          font-size: 29px;
+          font-size: 31px;
           font-weight: 700;
-          letter-spacing: -0.6px;
+          letter-spacing: -0.9px;
           color: var(--label);
         }
         .welcome p {
@@ -354,7 +397,7 @@ const AUTH_STYLES = `
           line-height: 1.45;
           color: var(--label-2);
         }
-        .cta { margin-top: 30px; gap: 10px; padding-bottom: 0; }
+        .cta { margin-top: 30px; gap: 8px; padding-bottom: 0; }
       }
     `,
   ],
@@ -384,6 +427,7 @@ export class LoginLandingComponent {}
               <div class="input-row">
                 <input
                   type="email"
+                  placeholder="nume@exemplu.ro"
                   [(ngModel)]="email"
                   autocomplete="email"
                   (keyup.enter)="signIn()"
@@ -395,6 +439,7 @@ export class LoginLandingComponent {}
               <div class="input-row">
                 <input
                   [type]="showPassword() ? 'text' : 'password'"
+                  placeholder="••••••••"
                   [(ngModel)]="password"
                   autocomplete="current-password"
                   (keyup.enter)="signIn()"
@@ -531,6 +576,7 @@ export class LoginFormComponent {
               <div class="input-row">
                 <input
                   type="email"
+                  placeholder="nume@exemplu.ro"
                   [(ngModel)]="email"
                   autocomplete="email"
                   (keyup.enter)="register()"
@@ -542,6 +588,7 @@ export class LoginFormComponent {
               <div class="input-row">
                 <input
                   [type]="showPassword() ? 'text' : 'password'"
+                  placeholder="Minim 6 caractere"
                   [(ngModel)]="password"
                   autocomplete="new-password"
                   (keyup.enter)="register()"
@@ -556,6 +603,7 @@ export class LoginFormComponent {
               <div class="input-row">
                 <input
                   [type]="showConfirm() ? 'text' : 'password'"
+                  placeholder="••••••••"
                   [(ngModel)]="confirm"
                   autocomplete="new-password"
                   (keyup.enter)="register()"
