@@ -19,7 +19,7 @@ npx ng build       # rezultatul în dist/bacpro-web
 ## Firebase
 
 Vezi [FIREBASE_SETUP.md](FIREBASE_SETUP.md). Fără config-ul web real,
-aplicația rulează în **mod local** (cont + date simulate în localStorage) ca
+aplicația rulează în **mod local** (cont si date simulate în localStorage) ca
 să poată fi folosită și testată integral; cu config-ul lipit, trece automat pe
 Firebase Auth + Firestore (structuri de date identice cu aplicația mobilă).
 
