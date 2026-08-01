@@ -3,7 +3,6 @@
 **BacPro** — pregătire pentru Bacalaureat: subiecte oficiale, timer de examen,
 countdown, progres și gamificare. Rescriere completă în **Angular** (web app
 optimizată pentru telefon) a aplicației mobile Flutter, funcțional identică.
-
 ## Rulare
 ```bash
 npm install
