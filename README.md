@@ -9,7 +9,6 @@ optimizată pentru telefon) a aplicației mobile Flutter, funcțional identică.
 npm install
 npm start          # http://localhost:4200
 ```
-
 Build de producție:
 
 ```bash
