@@ -7,7 +7,7 @@ optimizată pentru telefon) a aplicației mobile Flutter, funcțional identică.
 ## Rulare
 ```bash
 npm install
-npm start          # http://localhost:4200
+npm start         # http://localhost:4200
 ```
 Build de producție:
 
