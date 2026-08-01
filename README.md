@@ -22,7 +22,6 @@ să poată fi folosită și testată integral; cu config-ul lipit, trece automat
 Firebase Auth + Firestore (structuri de date identice cu aplicația mobilă).
 
 ## Funcționalități (paritate cu aplicația mobilă)
-
 - **Autentificare**: email/parolă, Google Sign-In (popup), resetare parolă;
   mesaje de eroare identice, în română.
 - **Onboarding** în 4 pași: nume → profil BAC (7 profiluri) → autoevaluare
