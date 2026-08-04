@@ -13,7 +13,6 @@ Build de producție:
 ```bash
 npx ng build       # rezultatul în dist/bacpro-web
 ```
-
 ## Firebase
 
 Vezi [FIREBASE_SETUP.md](FIREBASE_SETUP.md). Fără config-ul web real,
