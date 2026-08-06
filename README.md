@@ -21,7 +21,6 @@ Aplicație web pentru organizarea pregătirii la Bacalaureat. Utilizatorul își
 Aplicația oferă fluxul de navigare pentru materiile, anii și sesiunile din catalog. În repository este inclus momentan un singur PDF de subiect: Matematică Mate-Info, Bacalaureat 2025, sesiunea iunie. Pentru celelalte selecții, aplicația poate afișa că materialul nu este disponibil până când PDF-urile sunt adăugate în `public/assets/subiecte/` sau configurate în Firestore.
 
 ## Date și autentificare
-
 Aplicația este configurată pentru Firebase Authentication și Firestore. Datele de profil, sesiunile de studiu și mesajele către dezvoltator sunt stocate în Firebase pentru utilizatorul autentificat.
 
 Tema aleasă și data countdown-ului sunt păstrate local în browser. Feedback-ul haptic depinde de suportul browserului pentru `navigator.vibrate`; pe dispozitivele care nu îl suportă nu produce efect.
