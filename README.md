@@ -3,7 +3,6 @@
 Aplicație web pentru organizarea pregătirii la Bacalaureat. Utilizatorul își alege profilul, poate parcurge subiecte pe ani și sesiuni, își cronometrează rezolvarea și păstrează un istoric al sesiunilor finalizate.
 
 ## Functionalitati
-
 - autentificare cu email/parolă și Google, plus recuperarea parolei;
 - onboarding cu nume, profil de BAC și o notă estimată;
 - pagina principală cu numărul de subiecte rezolvate, obiectivul săptămânal, timpul de studiu, streak, media estimată și countdown până la BAC;
