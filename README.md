@@ -37,7 +37,6 @@ npm start
 Aplicația va fi disponibilă la `http://localhost:4200`.
 
 ## Build de producție
-
 ```bash
 npm run build
 ```
