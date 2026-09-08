@@ -45,6 +45,7 @@ npm run build
 
 Fișierele generate sunt în `dist/bacpro-web`.
 
+
 ## Teste
 
 ```bash
