@@ -26,6 +26,7 @@ Aplicația este configurată pentru Firebase Authentication și Firestore. Datel
 
 Tema aleasă și data countdown-ului sunt păstrate local în browser. Feedback-ul haptic depinde de suportul browserului pentru `navigator.vibrate`; pe dispozitivele care nu îl suportă nu produce efect.
 
+
 ## Rulare locală
 
 Ai nevoie de Node.js și npm.
